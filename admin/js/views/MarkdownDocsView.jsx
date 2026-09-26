@@ -91,7 +91,7 @@ function MarkdownDocsView() {
         || 'Markdown 文档';
     const currentDocumentPath = markdownDocument?.path || selectedMarkdownPath;
     const renderedHtml = markdownDocument?.content
-        // 文档正文和通知正文共用同一套 MarkdownRenderUtil，确保渲染风格一致。
+        // 文档正文统一经 MarkdownRenderUtil 渲染，确保展示风格一致。
         ? window.MarkdownRenderUtil.renderMarkdownToHtml(markdownDocument.content)
         : '';
 

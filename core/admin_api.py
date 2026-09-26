@@ -17,9 +17,6 @@ import asyncio
 import base64
 import json
 import math
-import os
-import subprocess
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -51,27 +48,6 @@ _PAGE_NAME = "console"
 # asset 接口允许下发的扩展名白名单与单文件大小上限。
 _ASSET_ALLOWED_SUFFIXES = {".js", ".jsx", ".css", ".png"}
 _ASSET_MAX_BYTES = 4 * 1024 * 1024
-
-
-def _is_running_in_docker() -> bool:
-    """检测当前进程是否运行在 Docker / 容器环境中。"""
-    # /.dockerenv 是最常见的容器特征文件，若存在可直接判定为容器环境。
-    if os.path.exists("/.dockerenv"):
-        return True
-
-    try:
-        cgroup_path = Path("/proc/self/cgroup")
-        if cgroup_path.exists():
-            # Linux 容器通常会在 cgroup 信息中暴露 docker / kubepods 的路径片段。
-            content = cgroup_path.read_text(encoding="utf-8", errors="ignore")
-            if "/docker/" in content or "/kubepods/" in content:
-                return True
-    except Exception:
-        # 环境探测失败时宁可保守忽略，不影响主流程。
-        pass
-
-    # 额外兼容某些自定义镜像通过环境变量主动标记容器场景的做法。
-    return os.environ.get("DOCKER_CONTAINER") == "true"
 
 
 class AdminApi:
@@ -114,7 +90,7 @@ class AdminApi:
         # 运行状态汇总（首页卡片与 1s 兜底轮询的数据源）。
         reg(f"/{p}/status", self.api_status, ["GET"], "管理页：运行状态")
 
-        # 全局配置读取与保存（白名单覆盖全部 5 个一级配置组）。
+        # 全局配置读取与保存（白名单覆盖全部 3 个一级配置组）。
         reg(f"/{p}/config", self.api_get_config, ["GET"], "管理页：读取全局配置")
         reg(f"/{p}/config", self.api_update_config, ["POST"], "管理页：保存全局配置")
         reg(
@@ -159,32 +135,6 @@ class AdminApi:
             "管理页：取消任务",
         )
 
-        # 通知系统。
-        reg(
-            f"/{p}/notifications",
-            self.api_get_notifications,
-            ["GET"],
-            "管理页：通知列表",
-        )
-        reg(
-            f"/{p}/notifications/read",
-            self.api_mark_notification_read,
-            ["POST"],
-            "管理页：单条已读",
-        )
-        reg(
-            f"/{p}/notifications/read-all",
-            self.api_mark_all_notifications_read,
-            ["POST"],
-            "管理页：全部已读",
-        )
-        reg(
-            f"/{p}/notifications/refresh",
-            self.api_refresh_notifications,
-            ["POST"],
-            "管理页：立即同步通知",
-        )
-
         # Markdown 文档浏览。
         reg(
             f"/{p}/markdown-files",
@@ -197,14 +147,6 @@ class AdminApi:
             self.api_get_markdown_file,
             ["GET"],
             "管理页：读取文档",
-        )
-
-        # 本地目录快速打开（桌面端便捷入口）。
-        reg(
-            f"/{p}/open-directory",
-            self.api_open_directory,
-            ["POST"],
-            "管理页：打开插件/数据目录",
         )
 
         # 内嵌页静态资源（admin/ 目录白名单），供 pages/console/index.html 引导加载。
@@ -594,19 +536,6 @@ class AdminApi:
             )
         return result
 
-    async def _build_notification_payload(self) -> dict[str, Any]:
-        # 统一封装通知载荷构造，避免 HTTP 路由与各调用方重复拼装。
-        if not getattr(self.plugin, "notification_center", None):
-            return {
-                "items": [],
-                "meta": {
-                    "unread_count": 0,
-                    "last_sync_at": None,
-                    "total_count": 0,
-                },
-            }
-        return await self.plugin.notification_center.get_payload()
-
     def _save_plugin_config(self) -> None:
         try:
             # AstrBot 配置对象通常提供 save_config 方法，这里做鸭子类型兼容。
@@ -772,7 +701,7 @@ class AdminApi:
             return self._err("获取运行状态失败")
 
     async def api_get_config(self) -> Any:
-        """返回全部 5 个一级配置组；web_admin 组显式过滤密码字段。
+        """返回全部 3 个一级配置组；web_admin 组显式过滤密码字段。
 
         注意：本接口的载荷是“配置组名 -> 对象”的映射，前端会按顶层键遍历，
         因此成功时不能附加 ok 信封字段（否则 ok 会被当作一个配置组处理）。
@@ -789,10 +718,6 @@ class AdminApi:
                     "friend_settings": dict(self.config.get("friend_settings", {})),
                     "group_settings": dict(self.config.get("group_settings", {})),
                     "web_admin": web_admin,
-                    "notification_settings": dict(
-                        self.config.get("notification_settings", {})
-                    ),
-                    "telemetry_config": dict(self.config.get("telemetry_config", {})),
                 }
             )
         except Exception as e:
@@ -800,15 +725,13 @@ class AdminApi:
             return self._err("读取配置失败")
 
     async def api_update_config(self) -> Any:
-        """保存全局配置；白名单覆盖全部 5 个一级配置组。"""
+        """保存全局配置；白名单覆盖全部 3 个一级配置组。"""
         try:
             payload = await self._json_body()
             allowed_keys = {
                 "friend_settings",
                 "group_settings",
                 "web_admin",
-                "notification_settings",
-                "telemetry_config",
             }
             for key in allowed_keys:
                 if key not in payload:
@@ -1097,67 +1020,6 @@ class AdminApi:
             logger.error(f"[主动消息] 取消任务失败喵: {e}")
             return self._err("取消任务失败")
 
-    async def api_get_notifications(self) -> Any:
-        """通知列表统一从插件本地缓存读取，前端不直接访问外部通知平台。"""
-        try:
-            # 复用统一的通知载荷构造函数，确保接口输出结构一致。
-            return self._ok(await self._build_notification_payload())
-        except Exception as e:
-            logger.error(f"[主动消息] 读取通知失败喵: {e}")
-            return self._err("获取通知列表失败")
-
-    async def api_mark_notification_read(self) -> Any:
-        """单条已读只影响插件本地缓存中的 read_map，不涉及远端接口写回。"""
-        try:
-            if not getattr(self.plugin, "notification_center", None):
-                return self._err("通知系统不可用")
-
-            payload = await self._json_body()
-            notification_id = payload.get("id")
-            if notification_id is None:
-                return self._err("缺少必填字段 id")
-            try:
-                # 前端传值可能是字符串，因此这里统一转成 int，方便下游逻辑处理。
-                normalized_id = int(notification_id)
-            except (TypeError, ValueError):
-                return self._err("id 必须是数字")
-
-            result = await self.plugin.notification_center.mark_as_read(normalized_id)
-            return self._ok(result if isinstance(result, dict) else {})
-        except Exception as e:
-            logger.error(f"[主动消息] 标记通知已读失败喵: {e}")
-            return self._err("标记已读失败")
-
-    async def api_mark_all_notifications_read(self) -> Any:
-        """批量已读，未读角标同步归零。"""
-        try:
-            if not getattr(self.plugin, "notification_center", None):
-                return self._err("通知系统不可用")
-            result = await self.plugin.notification_center.mark_all_as_read()
-            return self._ok(result if isinstance(result, dict) else {})
-        except Exception as e:
-            logger.error(f"[主动消息] 全部已读失败喵: {e}")
-            return self._err("全部已读失败")
-
-    async def api_refresh_notifications(self) -> Any:
-        """供“立即同步”按钮调用，强制拉取远端最新通知并回传完整快照。"""
-        try:
-            if not getattr(self.plugin, "notification_center", None):
-                return self._err("通知系统不可用")
-            changed = await self.plugin.notification_center.refresh()
-            payload = await self.plugin.notification_center.get_payload()
-            return self._ok(
-                {
-                    "changed": changed,
-                    "items": payload.get("items", []),
-                    "meta": payload.get("meta", {}),
-                    "message": "通知已同步",
-                }
-            )
-        except Exception as e:
-            logger.error(f"[主动消息] 同步通知失败喵: {e}")
-            return self._err("同步通知失败")
-
     async def api_list_markdown_files(self) -> Any:
         """仅暴露插件目录内明确允许浏览的 Markdown 文档。"""
         try:
@@ -1199,82 +1061,6 @@ class AdminApi:
         except Exception as e:
             logger.error(f"[主动消息] 返回文档失败喵: {e}")
             return self._err("读取文档失败")
-
-    async def api_open_directory(self) -> Any:
-        """允许前端请求打开插件目录或数据目录，便于管理员快速定位文件。"""
-        try:
-            payload = await self._json_body()
-            target = str(payload.get("path", "plugin")).strip().lower()
-            if target == "data":
-                directory = Path(self.plugin.data_dir)
-            else:
-                # 默认回退到插件根目录，保证前端传值异常时仍有一个安全目标。
-                directory = Path(__file__).resolve().parent.parent
-
-            # 确保目录存在，再根据当前系统选择合适的打开方式。
-            directory.mkdir(parents=True, exist_ok=True)
-            dir_str = str(directory)
-
-            if _is_running_in_docker():
-                return self._err(
-                    "Docker 环境下不支持在宿主机直接打开目录，请手动查看挂载路径",
-                    path=dir_str,
-                )
-
-            if os.name == "nt":
-                # Windows 使用系统默认资源管理器，封装为异步避免阻塞事件循环。
-                await asyncio.to_thread(os.startfile, dir_str)  # type: ignore[attr-defined]
-            elif sys.platform == "darwin":
-                # macOS 通过 open 命令调起 Finder；失败时把 stderr 带回前端便于定位。
-                result = await asyncio.to_thread(
-                    subprocess.run,
-                    ["open", dir_str],
-                    check=False,
-                    capture_output=True,
-                    text=True,
-                )
-                if result.returncode != 0:
-                    detail = (result.stderr or result.stdout or "未知错误").strip()
-                    return self._err(
-                        "打开目录失败（macOS）",
-                        message=f"open 命令执行失败: {detail}",
-                        path=dir_str,
-                    )
-            else:
-                # 其它类 Unix 系统优先尝试 xdg-open，兼容常见 Linux 桌面环境。
-                result = await asyncio.to_thread(
-                    subprocess.run,
-                    ["xdg-open", dir_str],
-                    check=False,
-                    capture_output=True,
-                    text=True,
-                )
-                if result.returncode != 0:
-                    detail = (result.stderr or result.stdout or "未知错误").strip()
-                    return self._err(
-                        "打开目录失败（Linux）",
-                        message=(
-                            "xdg-open 执行失败，服务器可能缺少桌面环境或未安装 xdg-open: "
-                            f"{detail}"
-                        ),
-                        path=dir_str,
-                    )
-
-            return self._ok(
-                {
-                    "path": dir_str,
-                    "message": "已在系统文件管理器中打开目录",
-                }
-            )
-        except FileNotFoundError as e:
-            logger.error(f"[主动消息] 打开目录失败（命令缺失）喵: {e}")
-            return self._err("打开目录失败：系统缺少所需命令")
-        except PermissionError as e:
-            logger.error(f"[主动消息] 打开目录失败（权限不足）喵: {e}")
-            return self._err("打开目录失败：权限不足", message=str(e))
-        except Exception as e:
-            logger.error(f"[主动消息] 打开目录失败喵: {e}")
-            return self._err("打开目录失败", message=str(e))
 
     async def api_get_asset(self, file_path: str = "") -> Any:
         """向内嵌管理页下发 admin/ 目录内的前端源码与资源。"""

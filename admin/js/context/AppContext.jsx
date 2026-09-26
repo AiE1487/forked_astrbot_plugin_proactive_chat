@@ -20,13 +20,6 @@ const initialState = {
     config: null,
     // 调度任务列表，对应后端 /api/jobs。
     jobs: [],
-    // 通知列表与元信息，对应后端 /api/notifications。
-    notifications: [],
-    notificationsMeta: {
-        unread_count: 0,
-        last_sync_at: '',
-        total_count: 0,
-    },
     // Markdown 文档浏览页的文件目录、当前文档与选中路径。
     markdownFiles: [],
     markdownDocument: null,
@@ -56,17 +49,6 @@ function reducer(state, action) {
             return { ...state, config: action.payload || null };
         case 'SET_JOBS':
             return { ...state, jobs: action.payload || [] };
-        case 'SET_NOTIFICATIONS':
-            return { ...state, notifications: action.payload || [] };
-        case 'SET_NOTIFICATIONS_META':
-            return {
-                ...state,
-                notificationsMeta: action.payload || {
-                    unread_count: 0,
-                    last_sync_at: '',
-                    total_count: 0,
-                },
-            };
         case 'SET_MARKDOWN_FILES':
             return { ...state, markdownFiles: action.payload || [] };
         case 'SET_MARKDOWN_DOCUMENT':

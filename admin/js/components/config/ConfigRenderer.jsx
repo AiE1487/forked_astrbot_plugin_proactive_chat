@@ -521,7 +521,7 @@ function detectSessionType(sessionId) {
 }
 
 // 会话差异配置页并不暴露完整全局 Schema，而是按会话类型抽取可编辑字段子集。
-// 因此像 web_admin、notification_settings 这类纯全局配置块不会出现在会话差异编辑视图中。
+// 因此像 web_admin 这类纯全局配置块不会出现在会话差异编辑视图中。
 function getSessionSchemaEntries(schema, sessionType) {
     const rootKey = sessionType === 'group' ? 'group_settings' : 'friend_settings';
     const rootItems = schema?.[rootKey]?.items || {};
@@ -848,13 +848,11 @@ function ConfigRenderer() {
                 // 会话模式保存后强制回读服务端 effective，确保会话隔离与覆写状态显示正确
                 await loadConfig(currentMode, currentSession);
             } else {
-                // 提交全部 5 个一级配置组，避免通知 / 遥测等组被静默丢弃。
+                // 提交全部一级配置组，避免某个组被静默丢弃。
                 const payload = {
                     friend_settings: cleanedConfig.friend_settings,
                     group_settings: cleanedConfig.group_settings,
                     web_admin: cleanedConfig.web_admin,
-                    notification_settings: cleanedConfig.notification_settings,
-                    telemetry_config: cleanedConfig.telemetry_config,
                 };
                 await api.updateConfig(payload);
                 isDirtyRef.current = false;

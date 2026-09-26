@@ -6,6 +6,26 @@
 <!-- markdownlint-disable MD041 -->
 # ChangeLog
 
+# 2026/09/27 v1.4.0
+
+本版本完全移除通知系统与匿名遥测机制，精简管理台侧边栏，并修复沙箱环境下 logo 显示异常。
+
+## 💥 Breaking Changes (破坏性变更)
+
+- 完全移除通知系统：管理台「通知中心」页面、`notification_settings` 配置组、后端 4 个通知接口与远端通知平台轮询全部删除；插件不再访问 `plugincenter.aloys23.link`
+- 完全移除匿名遥测机制：`telemetry_config` 配置组、启动/心跳/错误等全部上报链路与 `.telemetry_id` 实例标识文件删除，插件不再上传任何统计数据
+
+## ✨ Features (新特性)
+
+- 管理台侧边栏精简：移除「打开插件文件目录 / 打开插件数据目录」按钮、GitHub 仓库卡片与「点个 Star」文案及其对应后端 `open-directory` 接口
+
+## 🐛 Bug Fixes (问题修复)
+
+- 修复管理台在 AstrBot 插件页（沙箱 iframe）中左上角 logo 显示为破图的问题：logo 改经插件后端 asset 接口以 data URL 下发（沙箱内相对路径一律 404）；独立页行为不变
+- 升级安装后自动清理遗留的 `notifications_cache.json` 与 `.telemetry_id` 数据文件
+
+---
+
 # 2026/09/27 v1.3.2
 
 本版本修复管理台所有「保存」类操作实际不生效的根因，并支持一键禁用免打扰时段、统一开关为直角矩形。

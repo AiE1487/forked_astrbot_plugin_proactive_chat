@@ -33,13 +33,7 @@ class LifecycleMixin:
     data_dir: Any
     session_data_file: Any
     admin_api: Any
-    notification_center: Any
-    telemetry: Any
-    _heartbeat_task: asyncio.Task[None] | None
-    _original_exception_handler: Any
-    _exception_handler_installed: bool
     _terminating: bool
-    _start_time: float
     # 平台就绪后的启动流程是否已完成（幂等保护）、并发保护锁，以及延迟启动兜底任务句柄。
     _startup_finalized: bool
     _startup_lock: asyncio.Lock
@@ -82,18 +76,8 @@ class LifecycleMixin:
             )
             self.timezone = None
 
-        # 初始化遥测生命周期
-        if self.telemetry and self.telemetry.enabled:
-            loop = asyncio.get_running_loop()
-            self._original_exception_handler = loop.get_exception_handler()
-            loop.set_exception_handler(self._handle_asyncio_exception)
-            self._exception_handler_installed = True
-            self._start_time = time.monotonic()
-            # 启动阶段上报 startup + config，通过延迟错开避免同时请求触发服务端限流。
-            self._track_task(asyncio.create_task(self._deferred_startup_telemetry()))
-            # 心跳任务用于长期运行实例的活跃度统计，与启动事件互补。
-            self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
-            logger.debug("[主动消息] 已启动遥测心跳任务喵。")
+        # 一次性清理 v1.3.x 遗留的通知缓存与遥测实例文件（对应功能已移除）。
+        await self._cleanup_legacy_data_files()
 
         # 启动调度器
         self.scheduler = AsyncIOScheduler(timezone=self.timezone)
@@ -122,25 +106,26 @@ class LifecycleMixin:
                 self._wait_for_platforms_then_finalize()
             )
 
-        # 启动通知系统
-        try:
-            if self.notification_center:
-                await self.notification_center.start()
-        except Exception as e:
-            logger.error(f"[主动消息] 通知系统启动失败喵: {e}")
-            if self.telemetry and self.telemetry.enabled:
-                # 这里单独标记模块来源，便于区分“通知系统不可用”与主流程异常。
-                self._track_task(
-                    asyncio.create_task(
-                        self.telemetry.track_error(
-                            e,
-                            module="core.plugin_lifecycle.initialize.notification_center",
-                        )
-                    )
-                )
-
         # 说明：管理页 API 已在插件实例创建阶段注册到 Dashboard 转发层，
         # 无需独立启动流程，也不再存在独立 HTTP 服务的生命周期。
+
+    async def _cleanup_legacy_data_files(self) -> None:
+        """清理历史版本遗留的数据文件。
+
+        通知系统与遥测机制已在 v1.4.0 移除，对应缓存文件不再被任何代码
+        读写；这里做一次 best-effort 清理，避免用户数据目录残留孤儿文件。
+        """
+        legacy_files = (
+            self.data_dir / "notifications_cache.json",
+            self.data_dir / ".telemetry_id",
+        )
+        for legacy_file in legacy_files:
+            try:
+                if legacy_file.is_file():
+                    legacy_file.unlink()
+                    logger.info(f"[主动消息] 已清理遗留数据文件喵: {legacy_file.name}")
+            except Exception as e:
+                logger.debug(f"[主动消息] 清理遗留数据文件失败喵: {e}")
 
     def _are_platforms_available(self) -> bool:
         """判断是否已有可用的 IM 平台适配器实例。
@@ -320,34 +305,6 @@ class LifecycleMixin:
                 except asyncio.CancelledError:
                     pass
 
-            if self._heartbeat_task:
-                self._heartbeat_task.cancel()
-                try:
-                    await self._heartbeat_task
-                except asyncio.CancelledError:
-                    pass
-                self._heartbeat_task = None
-
-            if self.telemetry and self.telemetry.enabled and self._start_time > 0:
-                runtime_seconds = time.monotonic() - self._start_time
-                # 终止前直接等待一次 shutdown 上报，避免任务刚创建就被后续清理逻辑取消。
-                try:
-                    await self.telemetry.track_shutdown(
-                        exit_code=0, runtime_seconds=runtime_seconds
-                    )
-                except Exception as e:
-                    logger.debug(f"[主动消息] shutdown 遥测上报失败喵: {e}")
-                # 再清理其余挂起的 telemetry tasks，避免遗留后台任务。
-                await self._cleanup_telemetry_tasks()
-
-            if self._exception_handler_installed:
-                loop = asyncio.get_running_loop()
-                # 恢复条件取决于“是否曾经接管过异常处理器”，
-                # 而不是 terminate 时 telemetry 的当前启用状态。
-                # 原处理器即使是 None（表示默认处理器），也应完整恢复。
-                loop.set_exception_handler(self._original_exception_handler)
-                self._original_exception_handler = None
-                self._exception_handler_installed = False
             # 终止前最后一次持久化，尽量保留当前会话状态
             if self.data_lock:
                 try:
@@ -356,29 +313,8 @@ class LifecycleMixin:
                     logger.info("[主动消息] 会话数据已保存喵。")
                 except Exception as e:
                     logger.error(f"[主动消息] 保存数据时出错喵: {e}")
-
-            # 停止通知系统
-            if self.notification_center:
-                try:
-                    await self.notification_center.stop()
-                except Exception as e:
-                    logger.warning(f"[主动消息] 停止通知系统时出错喵: {e}")
         except Exception as e:
             logger.error(f"[主动消息] 生命周期终止阶段发生异常喵: {e}")
-            if self.telemetry and self.telemetry.enabled:
-                try:
-                    # terminate 阶段仍做 best-effort 错误上报，但绝不因为遥测再抛出新异常。
-                    await self.telemetry.track_error(
-                        e, module="core.plugin_lifecycle.terminate"
-                    )
-                except Exception:
-                    pass
         finally:
-            if self.telemetry:
-                try:
-                    await self.telemetry.close()
-                except Exception as e:
-                    logger.debug(f"[主动消息] 遥测会话关闭失败喵: {e}")
-
             # 确保终止日志一定输出
             logger.info("[主动消息] 主动消息插件已终止喵。")

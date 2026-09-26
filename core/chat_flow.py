@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import random
 import time
 from datetime import datetime
@@ -24,7 +23,6 @@ class ProactiveCoreMixin:
     data_lock: Any
     session_data: dict
     last_message_times: dict[str, float]
-    telemetry: Any
     manual_trigger_sessions: set[str]
     admin_api: Any
 
@@ -204,21 +202,6 @@ class ProactiveCoreMixin:
             logger.info(
                 f"[主动消息] 开始生成第 {unanswered_count + 1} 次主动消息喵，当前未回复次数: {unanswered_count} 次喵。"
             )
-            if self.telemetry and self.telemetry.enabled:
-                # 在真正进入主流程时记录一次 feature，用于统计主动消息任务的触发频率与会话类型分布。
-                self._track_task(
-                    asyncio.create_task(
-                        self.telemetry.track_feature(
-                            "proactive_task_started",
-                            {
-                                "session_type": session_config.get(
-                                    "_session_type", "unknown"
-                                ),
-                                "unanswered_count": unanswered_count,
-                            },
-                        )
-                    )
-                )
 
             # 准备上下文与人格
             request_package = await self._prepare_llm_request(normalized_session_id)
@@ -331,17 +314,6 @@ class ProactiveCoreMixin:
                 logger.error(f"[主动消息] 在错误处理中重新调度失败喵: {se}")
                 logger.error(
                     f"[主动消息] {self._get_session_log_str(session_id)} 可能需要手动干预喵。"
-                )
-
-            if self.telemetry and self.telemetry.enabled:
-                # 主流程致命错误统一挂到 check_and_chat 模块名下，便于和子链路异常区分统计。
-                self._track_task(
-                    asyncio.create_task(
-                        self.telemetry.track_error(
-                            e,
-                            module="core.chat_flow.check_and_chat",
-                        )
-                    )
                 )
         finally:
             await self._clear_manual_trigger_state(normalized_session_id)

@@ -41,7 +41,6 @@ class SenderMixin:
 
     context: Any
     session_data: dict
-    telemetry: Any
     data_dir: Any
 
     def _split_text(self, text: str, settings: dict) -> list[str]:
@@ -236,16 +235,6 @@ class SenderMixin:
                     f"[主动消息] 执行装饰钩子失败喵！来源: {handler.handler_full_name}, "
                     f"错误类型: {error_type}, 错误详情: {e}"
                 )
-                if self.telemetry and self.telemetry.enabled:
-                    # 装饰钩子属于外围扩展链路，单独上报便于定位是否为第三方装饰器导致的问题。
-                    self._track_task(
-                        asyncio.create_task(
-                            self.telemetry.track_error(
-                                e,
-                                module="core.message_sender._trigger_decorating_hooks",
-                            )
-                        )
-                    )
                 if "Available" in error_type:
                     logger.error(
                         f"[主动消息] 抓到可能导致 ApiNotAvailable 的嫌疑人喵！模块: {handler.handler_module_path}"
@@ -359,16 +348,6 @@ class SenderMixin:
         except Exception as e:
             logger.error(f"[主动消息] 通过平台 {p_id} 发送失败喵: {e}")
             logger.debug(traceback.format_exc())
-            if self.telemetry and self.telemetry.enabled:
-                # 平台发送失败是实际送达链路的问题，与 LLM 生成失败应在遥测上分开统计。
-                self._track_task(
-                    asyncio.create_task(
-                        self.telemetry.track_error(
-                            e,
-                            module="core.message_sender._send_chain_with_hooks",
-                        )
-                    )
-                )
 
     async def _send_proactive_message(self, session_id: str, text: str) -> None:
         """发送主动消息（支持TTS与分段）。"""
@@ -402,16 +381,6 @@ class SenderMixin:
                         await asyncio.sleep(0.5)
             except Exception as e:
                 logger.error(f"[主动消息] 手动TTS流程发生异常喵: {e}")
-                if self.telemetry and self.telemetry.enabled:
-                    # TTS 失败不一定意味着文本发送失败，因此单独挂到 tts 子模块下记录。
-                    self._track_task(
-                        asyncio.create_task(
-                            self.telemetry.track_error(
-                                e,
-                                module="core.message_sender._send_proactive_message.tts",
-                            )
-                        )
-                    )
 
         # 是否继续发送文本：未发出 TTS 或配置要求始终发文本
         should_send_text = not is_tts_sent or tts_conf.get("always_send_text", True)
@@ -434,28 +403,6 @@ class SenderMixin:
                 logger.info(
                     f"[主动消息] 分段回复已启用，将发送 {len(segments)} 条消息喵。"
                 )
-                if self.telemetry and self.telemetry.enabled:
-                    # 这里只记录分段数、文本长度、TTS 开关等统计值，不上传任何消息正文内容。
-                    self._track_task(
-                        asyncio.create_task(
-                            self.telemetry.track_feature(
-                                "message_send_result",
-                                {
-                                    "session_type": session_config.get(
-                                        "_session_type", "unknown"
-                                    ),
-                                    "tts_enabled": bool(
-                                        tts_conf.get("enable_tts", True)
-                                    ),
-                                    "tts_sent": is_tts_sent,
-                                    "segmented_enabled": True,
-                                    "segment_count": len(segments),
-                                    "text_length": len(text),
-                                    "success": True,
-                                },
-                            )
-                        )
-                    )
 
                 # 分段顺序发送，段间按策略等待，模拟自然输出节奏
                 for idx, seg in enumerate(segments):
@@ -466,28 +413,6 @@ class SenderMixin:
                         await asyncio.sleep(interval)
             else:
                 await self._send_chain_with_hooks(session_id, [Plain(text=text)])
-                if self.telemetry and self.telemetry.enabled:
-                    # 非分段文本发送同样记录统一的发送统计，便于后续比较不同发送策略的使用占比。
-                    self._track_task(
-                        asyncio.create_task(
-                            self.telemetry.track_feature(
-                                "message_send_result",
-                                {
-                                    "session_type": session_config.get(
-                                        "_session_type", "unknown"
-                                    ),
-                                    "tts_enabled": bool(
-                                        tts_conf.get("enable_tts", True)
-                                    ),
-                                    "tts_sent": is_tts_sent,
-                                    "segmented_enabled": False,
-                                    "segment_count": 1,
-                                    "text_length": len(text),
-                                    "success": True,
-                                },
-                            )
-                        )
-                    )
 
         # Bot 在群聊发言后需要重置沉默计时
         if "group" in session_id.lower():

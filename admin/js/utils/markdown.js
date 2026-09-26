@@ -163,7 +163,7 @@ function buildMarkdownCodeBlockHtml(code, language) {
     const languageLabel = getMarkdownLanguageLabel(normalizedLanguage);
     const highlightedCode = highlightMarkdownCode(code, normalizedLanguage);
     return [
-        // 代码块外层统一使用 notification-md 的样式体系，便于通知页和文档页复用同一套 CSS。
+        // 代码块外层统一使用 notification-md 的样式体系，便于文档页复用同一套 CSS。
         `<div class="notification-md-code-block${languageClass}">`,
         '<div class="notification-md-code-header">',
         `<span class="notification-md-code-lang">${escapeMarkdownHtml(languageLabel)}</span>`,
@@ -605,7 +605,7 @@ function renderMarkdownToHtml(content) {
 }
 
 window.MarkdownRenderUtil = {
-    // 暴露为全局工具对象，供通知页与文档页在无打包环境下直接复用。
+    // 暴露为全局工具对象，供文档页在无打包环境下直接复用。
     normalizeMarkdownContent,
     isProbablyMarkdown,
     renderMarkdownToHtml,

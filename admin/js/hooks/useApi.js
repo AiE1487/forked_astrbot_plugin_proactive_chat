@@ -47,22 +47,6 @@ function useApi() {
         (path) => window.HttpUtil.get(`/api/markdown-files/${path}`),
         []
     );
-    const getNotifications = React.useCallback(
-        () => window.HttpUtil.get('/api/notifications'),
-        []
-    );
-    const readNotification = React.useCallback(
-        (id) => window.HttpUtil.post('/api/notifications/read', { id }),
-        []
-    );
-    const readAllNotifications = React.useCallback(
-        () => window.HttpUtil.post('/api/notifications/read-all', {}),
-        []
-    );
-    const refreshNotifications = React.useCallback(
-        () => window.HttpUtil.post('/api/notifications/refresh', {}),
-        []
-    );
     const triggerJob = React.useCallback(
         // “立即触发”接口本质上是一个无参 POST，因此 body 传空对象保持请求格式统一。
         (session) => window.HttpUtil.post(`/api/jobs/${session}/trigger`, {}),
@@ -91,10 +75,6 @@ function useApi() {
             listJobs,
             listMarkdownFiles,
             getMarkdownFile,
-            getNotifications,
-            readNotification,
-            readAllNotifications,
-            refreshNotifications,
             triggerJob,
             cancelJob,
             rescheduleJob,
@@ -111,10 +91,6 @@ function useApi() {
             listJobs,
             listMarkdownFiles,
             getMarkdownFile,
-            getNotifications,
-            readNotification,
-            readAllNotifications,
-            refreshNotifications,
             triggerJob,
             cancelJob,
             rescheduleJob,
