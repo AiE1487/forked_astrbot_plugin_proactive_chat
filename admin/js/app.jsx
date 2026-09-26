@@ -292,6 +292,45 @@ function ThemedAppShell() {
                 MuiAccordion: {
                     styleOverrides: { root: { borderRadius: 0 } },
                 },
+                // 开关与整体主题一致改为直角矩形：暗色轨道 + 亮色滑块，开启时反色。
+                MuiSwitch: {
+                    styleOverrides: {
+                        root: {
+                            width: 52,
+                            height: 32,
+                            padding: 0,
+                        },
+                        switchBase: {
+                            padding: '4px',
+                            transitionDuration: '300ms',
+                            '&.Mui-checked': {
+                                transform: 'translateX(20px)',
+                                color: '#111214',
+                                '& + .MuiSwitch-track': {
+                                    backgroundColor: '#e8eaed',
+                                    opacity: 1,
+                                    border: 0,
+                                },
+                            },
+                        },
+                        track: {
+                            borderRadius: 0,
+                            backgroundColor: '#2e3236',
+                            opacity: 1,
+                            boxSizing: 'border-box',
+                            transition: 'background-color 300ms',
+                        },
+                        thumb: {
+                            borderRadius: 0,
+                            width: 24,
+                            height: 24,
+                            boxSizing: 'border-box',
+                            backgroundColor: '#b8bcc2',
+                            boxShadow: 'none',
+                            transition: 'background-color 300ms',
+                        },
+                    },
+                },
                 MuiDialog: {
                     styleOverrides: { paper: { borderRadius: 0, backgroundImage: 'none' } },
                 },

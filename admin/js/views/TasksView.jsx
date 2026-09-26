@@ -95,7 +95,10 @@ function resolveTaskProgress(job, nowMs) {
     };
 }
 
-function formatQuietHoursText(value) {
+function formatQuietHoursText(value, enabled) {
+    // enabled 为 false 时免打扰整体关闭，无论时段如何配置都不拦截。
+    if (enabled === false) return '已禁用';
+
     const raw = String(value || '').trim();
     if (!raw) return '未配置';
 
@@ -322,7 +325,10 @@ function TasksView({ onRefresh }) {
                             job.schedule_min_interval_minutes,
                             job.schedule_max_interval_minutes,
                         );
-                        const quietHoursText = formatQuietHoursText(job.quiet_hours);
+                        const quietHoursText = formatQuietHoursText(
+                            job.quiet_hours,
+                            job.quiet_hours_enabled,
+                        );
 
                         return (
                             <div className={`card task-card-enhanced ${task.status === 'urgent' ? 'is-urgent' : ''} ${task.status === 'expired' ? 'is-expired' : ''}`} key={job.id}>

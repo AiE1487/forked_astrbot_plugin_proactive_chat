@@ -224,40 +224,10 @@ function ConfigField({ fieldKey, schema, value, onChange, depth = 0, path = '', 
             }}>
                 <DescriptionSection flex={8} />
                 <Box sx={{ flex: 2, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    {/* 样式统一由全局 MuiSwitch 主题承担，保证全站开关均为直角矩形。 */}
                     <Switch
                         checked={localValue !== undefined ? localValue : (schema.default || false)}
                         onChange={(e) => handleChange(e.target.checked)}
-                        sx={{
-                            width: 52,
-                            height: 32,
-                            padding: 0,
-                            '& .MuiSwitch-switchBase': {
-                                padding: 0,
-                                margin: '4px',
-                                transitionDuration: '300ms',
-                                '&.Mui-checked': {
-                                    transform: 'translateX(20px)',
-                                    color: '#fff',
-                                    '& + .MuiSwitch-track': {
-                                        backgroundColor: 'primary.main',
-                                        opacity: 1,
-                                        border: 0,
-                                    },
-                                },
-                            },
-                            '& .MuiSwitch-thumb': {
-                                boxSizing: 'border-box',
-                                width: 24,
-                                height: 24,
-                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                            },
-                            '& .MuiSwitch-track': {
-                                borderRadius: 16,
-                                backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                                opacity: 1,
-                                transition: 'background-color 300ms',
-                            },
-                        }}
                     />
                 </Box>
             </Box>

@@ -24,6 +24,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from astrbot.api import logger
 
@@ -233,9 +234,15 @@ class AdminApi:
         return json_response({"ok": False, "error": message, **extra})
 
     async def _json_body(self) -> dict[str, Any]:
-        """解析 POST 请求体；空体或非 JSON 一律回退为空对象。"""
+        """解析 POST 请求体；空体或非 JSON 一律回退为空对象。
+
+        注意：astrbot.api.web 的请求代理只暴露 ``json(default=...)`` 方法，
+        并不存在 Quart 风格的 ``get_json()``；误用会抛 AttributeError 并被
+        吞掉，导致所有 POST 请求体都被替换成空对象（保存接口看似成功、
+        实际未写入任何字段），因此这里必须使用 ``request.json()``。
+        """
         try:
-            payload = await request.get_json()
+            payload = await request.json(default={})
         except Exception:
             return {}
         return payload if isinstance(payload, dict) else {}
@@ -538,6 +545,9 @@ class AdminApi:
                     ),
                     "schedule_max_interval_minutes": schedule_settings.get(
                         "max_interval_minutes"
+                    ),
+                    "quiet_hours_enabled": schedule_settings.get(
+                        "enable_quiet_hours", True
                     ),
                     "quiet_hours": schedule_settings.get("quiet_hours", ""),
                 }
@@ -897,9 +907,39 @@ class AdminApi:
             logger.error(f"[主动消息] 会话差异配置处理失败喵: {e}")
             return self._err("会话差异配置处理失败")
 
+    def _decode_umo_param(self, umo: str) -> str:
+        """解码路径参数中的会话 UMO，容忍双重编码。
+
+        AstrBot 插件页 bridge 会对转发路径逐段编码一次；旧版前端还可能
+        传入预编码后的值，叠加后服务端解一次码仍残留 %3A 字样。正常 UMO
+        不含百分号转义，因此仅在原样解析失败、且解码后可被解析时才采用
+        解码结果，避免误伤包含字面 % 的会话 ID。
+        """
+        umo = str(umo or "")
+        parse = getattr(self.plugin, "_parse_session_id", None)
+        if not callable(parse):
+            return umo
+
+        try:
+            if parse(umo):
+                return umo
+        except Exception:
+            pass
+
+        try:
+            decoded = unquote(umo)
+        except Exception:
+            return umo
+        if decoded == umo:
+            return umo
+        try:
+            return decoded if parse(decoded) else umo
+        except Exception:
+            return umo
+
     async def _get_session_config(self, umo: str) -> Any:
         # 路径参数使用 path 转换器，允许会话 ID 中包含特殊字符。
-        normalized = self.plugin._normalize_session_id(umo)
+        normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
         base = self.plugin._get_base_session_config(normalized)
         return self._ok(
             {
@@ -916,7 +956,7 @@ class AdminApi:
         )
 
     async def _update_session_config(self, umo: str) -> Any:
-        normalized = self.plugin._normalize_session_id(umo)
+        normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
         payload = await self._json_body()
         # mode 用于兼容两种写法：直接提交 override，或提交最终 effective 配置。
         mode = payload.get("mode", "effective")
@@ -956,7 +996,7 @@ class AdminApi:
 
     async def _reset_session_config(self, umo: str) -> Any:
         # 删除覆写后，会话会重新完全继承全局配置。
-        normalized = self.plugin._normalize_session_id(umo)
+        normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
         await self.plugin.session_override_manager.delete_override(normalized)
         return self._ok(
             {
@@ -978,7 +1018,7 @@ class AdminApi:
     async def api_reschedule_job(self, umo: str = "") -> Any:
         """重新调度指定会话的下一次主动消息时间。"""
         try:
-            normalized = self.plugin._normalize_session_id(umo)
+            normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
             session_config = self.plugin._get_session_config(normalized)
             if not session_config or not session_config.get("enable", False):
                 return self._err(
@@ -1002,7 +1042,7 @@ class AdminApi:
     async def api_trigger_job(self, umo: str = "") -> Any:
         """立即手动触发一次指定会话的检查与发言流程。"""
         try:
-            normalized = self.plugin._normalize_session_id(umo)
+            normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
             if normalized in self.plugin.manual_trigger_sessions:
                 return self._err(
                     "该任务正在立即触发中，请等待当前执行完成",
@@ -1027,7 +1067,7 @@ class AdminApi:
     async def api_cancel_job(self, umo: str = "") -> Any:
         """取消指定会话的调度任务；任务不存在时保持幂等。"""
         try:
-            normalized = self.plugin._normalize_session_id(umo)
+            normalized = self.plugin._normalize_session_id(self._decode_umo_param(umo))
             removed = False
             try:
                 # APScheduler 中的 job id 直接使用规范化后的 session id。

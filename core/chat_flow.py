@@ -50,9 +50,11 @@ class ProactiveCoreMixin:
         if not session_config.get("enable", False):
             return False, "session_disabled"
 
-        # 免打扰时段判断
+        # 免打扰时段判断；开关关闭时完全忽略该时段
         schedule_conf = session_config.get("schedule_settings", {})
-        if is_quiet_time(schedule_conf.get("quiet_hours", "1-7"), self.timezone):
+        if schedule_conf.get("enable_quiet_hours", True) and is_quiet_time(
+            schedule_conf.get("quiet_hours", "1-7"), self.timezone
+        ):
             return False, "quiet_hours"
 
         return True, "allowed"
