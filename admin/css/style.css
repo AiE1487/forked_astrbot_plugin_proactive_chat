@@ -1,112 +1,52 @@
-/* Material Design 3 - 主动消息主题 */
+/* 黑灰白直角主题 - 主动消息管理台 */
 :root {
-    /* 整个管理端的设计令牌入口：亮色模式下所有组件都从这里读取颜色变量。 */
-    /* --- MD3 颜色令牌 (紫色种子) --- */
-    --md-sys-color-primary: #6750A4;
-    --md-sys-color-on-primary: #FFFFFF;
-    --md-sys-color-primary-container: #EADDFF;
-    --md-sys-color-on-primary-container: #21005D;
+    /* 整个管理台的设计令牌入口：永久暗色（黑灰底 + 白字），所有组件都从这里读取颜色变量。 */
+    /* --- 颜色令牌 (黑灰种子) --- */
+    --md-sys-color-primary: #e8eaed;
+    --md-sys-color-on-primary: #111214;
+    --md-sys-color-primary-container: #2a2d31;
+    --md-sys-color-on-primary-container: #f2f3f5;
 
-    --md-sys-color-secondary: #625B71;
-    --md-sys-color-on-secondary: #FFFFFF;
-    --md-sys-color-secondary-container: #E8DEF8;
-    --md-sys-color-on-secondary-container: #1D192B;
+    --md-sys-color-secondary: #b8bcc2;
+    --md-sys-color-on-secondary: #111214;
+    --md-sys-color-secondary-container: #26282b;
+    --md-sys-color-on-secondary-container: #f2f3f5;
 
-    --md-sys-color-surface: rgba(255, 255, 255, 0.8);
-    --md-sys-color-on-surface: #1C1B1F;
-    --md-sys-color-on-surface-variant: #49454F;
-    --md-sys-color-surface-variant: #E7E0EC;
+    --md-sys-color-surface: #17181a;
+    --md-sys-color-on-surface: #f2f3f5;
+    --md-sys-color-on-surface-variant: #b8bcc2;
+    --md-sys-color-surface-variant: #26282b;
 
-    --md-sys-color-background: #FEF7FF;
-    --md-sys-color-outline-variant: rgba(103, 80, 164, 0.1);
+    --md-sys-color-background: #111214;
+    --md-sys-color-outline-variant: #2e3236;
 
-    --glass-bg: rgba(255, 255, 255, 0.65);
-    --glass-border: rgba(103, 80, 164, 0.15);
-    --glass-shadow: 0 4px 20px 0 rgba(103, 80, 164, 0.08);
+    --glass-bg: #17181a;
+    --glass-border: #2e3236;
+    --glass-shadow: none;
 
-    /* Markdown 代码高亮颜色令牌，供亮暗主题统一覆写。 */
-    --md-code-token-key: #7C3AED;
-    --md-code-token-string: #047857;
-    --md-code-token-number: #B45309;
-    --md-code-token-boolean: #C026D3;
-    --md-code-token-keyword: #2563EB;
-    --md-code-token-function: #7C2D12;
-    --md-code-token-command: #4338CA;
-    --md-code-token-flag: #0F766E;
-    --md-code-token-punctuation: rgba(28, 27, 31, 0.52);
+    /* Markdown 代码高亮颜色令牌：低饱和度、适配暗色背景。 */
+    --md-code-token-key: #c8cdd4;
+    --md-code-token-string: #8fbf9f;
+    --md-code-token-number: #d9b98a;
+    --md-code-token-boolean: #cf9fca;
+    --md-code-token-keyword: #9fb8d9;
+    --md-code-token-function: #d9a98a;
+    --md-code-token-command: #a8b8d9;
+    --md-code-token-flag: #8fc4b8;
+    --md-code-token-punctuation: rgba(242, 243, 245, 0.5);
 
     --theme-transition-duration: 220ms;
     --interactive-transition-duration: 180ms;
     --theme-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* --- 形状 --- */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 28px;
+    /* --- 形状：横平竖直，全局直角 --- */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
 
     /* --- 顶栏 --- */
     --top-bar-height: 80px;
-}
-
-/* 暗色主题通过覆盖 CSS 变量切换外观，尽量避免为每个组件单独写一套颜色。 */
-body.dark-theme {
-    --md-sys-color-primary: #D0BCFF;
-    --md-sys-color-on-primary: #381E72;
-    --md-sys-color-primary-container: #4F378B;
-    --md-sys-color-on-primary-container: #EADDFF;
-
-    --md-sys-color-surface: rgba(28, 27, 31, 0.8);
-    --md-sys-color-on-surface: #E6E1E5;
-    --md-sys-color-on-surface-variant: #CAC4D0;
-    --md-sys-color-surface-variant: #49454F;
-
-    --md-sys-color-background: #141218;
-    --md-sys-color-outline-variant: rgba(208, 188, 255, 0.1);
-
-    --glass-bg: rgba(28, 27, 31, 0.7);
-    --glass-border: rgba(208, 188, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-
-    --md-code-token-key: #C4B5FD;
-    --md-code-token-string: #6EE7B7;
-    --md-code-token-number: #FBBF24;
-    --md-code-token-boolean: #F0ABFC;
-    --md-code-token-keyword: #93C5FD;
-    --md-code-token-function: #FDBA74;
-    --md-code-token-command: #A5B4FC;
-    --md-code-token-flag: #5EEAD4;
-    --md-code-token-punctuation: rgba(236, 231, 246, 0.56);
-}
-
-/* 首屏主题预初始化（在 React 挂载前生效，减少 FOUC） */
-html.theme-dark body {
-    --md-sys-color-primary: #D0BCFF;
-    --md-sys-color-on-primary: #381E72;
-    --md-sys-color-primary-container: #4F378B;
-    --md-sys-color-on-primary-container: #EADDFF;
-
-    --md-sys-color-surface: rgba(28, 27, 31, 0.8);
-    --md-sys-color-on-surface: #E6E1E5;
-    --md-sys-color-on-surface-variant: #CAC4D0;
-    --md-sys-color-surface-variant: #49454F;
-
-    --md-sys-color-background: #141218;
-    --md-sys-color-outline-variant: rgba(208, 188, 255, 0.1);
-
-    --glass-bg: rgba(28, 27, 31, 0.7);
-    --glass-border: rgba(208, 188, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-
-    --md-code-token-key: #C4B5FD;
-    --md-code-token-string: #6EE7B7;
-    --md-code-token-number: #FBBF24;
-    --md-code-token-boolean: #F0ABFC;
-    --md-code-token-keyword: #93C5FD;
-    --md-code-token-function: #FDBA74;
-    --md-code-token-command: #A5B4FC;
-    --md-code-token-flag: #5EEAD4;
-    --md-code-token-punctuation: rgba(236, 231, 246, 0.56);
 }
 
 /* ===== 基础重置与全局交互层 ===== */
@@ -169,13 +109,8 @@ html {
 }
 
 body {
-    /* 背景使用多层径向渐变，营造轻量的 MD3 柔和氛围，而不是纯色平铺。 */
+    /* 永久暗色：纯色平铺背景，不再使用径向渐变氛围。 */
     background-color: var(--md-sys-color-background);
-    background-image:
-        radial-gradient(at 0% 0%, rgba(103, 80, 164, 0.08) 0, transparent 40%),
-        radial-gradient(at 50% 0%, rgba(236, 72, 153, 0.05) 0, transparent 40%),
-        radial-gradient(at 100% 0%, rgba(103, 80, 164, 0.08) 0, transparent 40%);
-    background-attachment: fixed;
     color: var(--md-sys-color-on-surface);
     font-family: 'Outfit', "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
@@ -206,24 +141,15 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #1C1B1F;
+    color: #f2f3f5;
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background:
-        radial-gradient(ellipse at 20% 15%, rgba(103, 80, 164, 0.14), transparent 52%),
-        radial-gradient(ellipse at 80% 85%, rgba(103, 80, 164, 0.09), transparent 52%),
-        #FEF7FF;
+        radial-gradient(ellipse at 20% 15%, rgba(154, 160, 168, 0.14), transparent 52%),
+        radial-gradient(ellipse at 80% 85%, rgba(154, 160, 168, 0.09), transparent 52%),
+        #111214;
     opacity: 1;
     transform: translateZ(0);
     will-change: opacity, transform;
-}
-
-html.theme-dark .boot-loader,
-body.dark-theme .boot-loader {
-    color: #E6E1E5;
-    background:
-        radial-gradient(ellipse at 20% 15%, rgba(208, 188, 255, 0.13), transparent 52%),
-        radial-gradient(ellipse at 80% 85%, rgba(103, 80, 164, 0.18), transparent 52%),
-        #141218;
 }
 
 #loading-skeleton.is-exiting {
@@ -236,14 +162,14 @@ body.dark-theme .boot-loader {
     /* Logo 外壳带轻微浮动动画，用于缓解静态等待时的“卡住感”。 */
     width: 80px;
     height: 80px;
-    border-radius: 20px;
+    border-radius: 0;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(103, 80, 164, 0.08);
-    border: 1px solid rgba(103, 80, 164, 0.18);
-    box-shadow: 0 4px 24px rgba(103, 80, 164, 0.12);
+    background: rgba(154, 160, 168, 0.08);
+    border: 1px solid rgba(154, 160, 168, 0.18);
+    box-shadow: 0 4px 24px rgba(154, 160, 168, 0.12);
     overflow: hidden;
     animation: boot-loader-float 2.4s ease-in-out infinite;
     will-change: transform;
@@ -253,14 +179,7 @@ body.dark-theme .boot-loader {
     width: 56px;
     height: 56px;
     object-fit: contain;
-    border-radius: 8px;
-}
-
-html.theme-dark .boot-loader__logo,
-body.dark-theme .boot-loader__logo {
-    background: rgba(208, 188, 255, 0.08);
-    border-color: rgba(208, 188, 255, 0.15);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    border-radius: 0;
 }
 
 .boot-loader__title {
@@ -268,59 +187,36 @@ body.dark-theme .boot-loader__logo {
     font-weight: 700;
     margin-bottom: 8px;
     letter-spacing: 0.01em;
-    color: #1C1B1F;
-}
-
-html.theme-dark .boot-loader__title,
-body.dark-theme .boot-loader__title {
-    color: #E6E1E5;
+    color: #f2f3f5;
 }
 
 .boot-loader__subtitle {
     font-size: 13px;
-    color: #49454F;
+    color: #b8bcc2;
     margin-bottom: 28px;
-}
-
-html.theme-dark .boot-loader__subtitle,
-body.dark-theme .boot-loader__subtitle {
-    color: #CAC4D0;
 }
 
 .boot-loader__progress {
     /* 进度条不反映真实百分比，只承担“系统仍在工作”的感知反馈。 */
     width: min(260px, 68vw);
     height: 3px;
-    border-radius: 999px;
+    border-radius: 0;
     overflow: hidden;
-    background: rgba(103, 80, 164, 0.12);
+    background: rgba(154, 160, 168, 0.12);
     contain: paint;
-}
-
-html.theme-dark .boot-loader__progress,
-body.dark-theme .boot-loader__progress {
-    background: rgba(208, 188, 255, 0.12);
 }
 
 .boot-loader__progress-bar {
     height: 100%;
     width: 42%;
-    border-radius: 999px;
+    border-radius: 0;
     background: linear-gradient(90deg,
-        rgba(103, 80, 164, 0.25) 0%,
-        rgba(103, 80, 164, 0.85) 50%,
-        rgba(103, 80, 164, 0.25) 100%);
+        rgba(154, 160, 168, 0.25) 0%,
+        rgba(154, 160, 168, 0.85) 50%,
+        rgba(154, 160, 168, 0.25) 100%);
     animation: boot-loader-progress 1.45s ease-in-out infinite;
     will-change: transform;
     transform: translate3d(-110%, 0, 0) scaleX(0.35);
-}
-
-html.theme-dark .boot-loader__progress-bar,
-body.dark-theme .boot-loader__progress-bar {
-    background: linear-gradient(90deg,
-        rgba(208, 188, 255, 0.2) 0%,
-        rgba(208, 188, 255, 0.9) 50%,
-        rgba(208, 188, 255, 0.2) 100%);
 }
 
 /* 首屏 logo 呼吸浮动动画。 */
@@ -347,7 +243,7 @@ body.dark-theme .boot-loader__progress-bar {
     display: block;
     margin-bottom: 8px;
     font-size: 13px;
-    color: #625B71;
+    color: #6a6f76;
 }
 
 .boot-login__input {
@@ -355,18 +251,18 @@ body.dark-theme .boot-loader__progress-bar {
     box-sizing: border-box;
     height: 44px;
     padding: 0 14px;
-    border: 1px solid rgba(103, 80, 164, 0.22);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.88);
-    color: #1C1B1F;
+    border: 1px solid rgba(154, 160, 168, 0.22);
+    border-radius: 0;
+    background: rgba(38, 40, 43, 0.9);
+    color: #f2f3f5;
     outline: none;
     font-size: 14px;
-    box-shadow: 0 8px 24px rgba(103, 80, 164, 0.08);
+    box-shadow: 0 8px 24px rgba(154, 160, 168, 0.08);
 }
 
 .boot-login__input:focus {
-    border-color: rgba(103, 80, 164, 0.5);
-    box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.12), 0 8px 24px rgba(103, 80, 164, 0.08);
+    border-color: rgba(154, 160, 168, 0.5);
+    box-shadow: 0 0 0 3px rgba(154, 160, 168, 0.12), 0 8px 24px rgba(154, 160, 168, 0.08);
 }
 
 .boot-login__button {
@@ -374,42 +270,17 @@ body.dark-theme .boot-loader__progress-bar {
     margin-top: 12px;
     height: 44px;
     border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #7F67BE 0%, #6750A4 100%);
+    border-radius: 0;
+    background: linear-gradient(135deg, #7d838c 0%, #9aa0a8 100%);
     color: #fff;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 24px rgba(103, 80, 164, 0.22);
+    box-shadow: 0 10px 24px rgba(154, 160, 168, 0.22);
 }
 
 .boot-login__button:disabled {
     cursor: not-allowed;
-}
-
-html.theme-dark .boot-login__label,
-body.dark-theme .boot-login__label {
-    color: #CAC4D0;
-}
-
-html.theme-dark .boot-login__input,
-body.dark-theme .boot-login__input {
-    background: rgba(28, 27, 31, 0.88);
-    color: #E6E1E5;
-    border-color: rgba(208, 188, 255, 0.22);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
-}
-
-html.theme-dark .boot-login__input:focus,
-body.dark-theme .boot-login__input:focus {
-    border-color: rgba(208, 188, 255, 0.48);
-    box-shadow: 0 0 0 3px rgba(208, 188, 255, 0.16), 0 8px 24px rgba(0, 0, 0, 0.24);
-}
-
-html.theme-dark .boot-login__button,
-body.dark-theme .boot-login__button {
-    background: linear-gradient(135deg, #A58CFF 0%, #7F67BE 100%);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
 /* ===== 通用材质与布局骨架 ===== */
@@ -456,15 +327,15 @@ body.dark-theme .boot-login__button {
 .sidebar-logo-img {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(103, 80, 164, 0.2);
+    border-radius: 0;
+    box-shadow: 0 4px 12px rgba(154, 160, 168, 0.2);
     object-fit: contain;
 }
 
 .nav-item {
     /* 单个导航项在 hover / active 状态下通过背景与透明度强化当前定位。 */
     padding: 14px 20px;
-    border-radius: 16px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -484,7 +355,7 @@ body.dark-theme .boot-login__button {
     min-width: 22px;
     height: 22px;
     padding: 0 7px;
-    border-radius: 999px;
+    border-radius: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -495,7 +366,7 @@ body.dark-theme .boot-login__button {
     line-height: 1;
     letter-spacing: 0.01em;
     box-shadow: 0 8px 18px rgba(229, 57, 53, 0.22);
-    border: 1px solid rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     flex-shrink: 0;
 }
 
@@ -505,7 +376,7 @@ body.dark-theme .boot-login__button {
 }
 
 .nav-item:hover {
-    background: rgba(103, 80, 164, 0.08);
+    background: rgba(154, 160, 168, 0.08);
     opacity: 1;
 }
 
@@ -527,7 +398,7 @@ body.dark-theme .boot-login__button {
 }
 
 .top-bar {
-    /* 顶栏悬浮于内容区上方，使用伪元素实现半透明模糊遮罩。 */
+    /* 顶栏悬浮于内容区上方，使用伪元素承载纯色底与拼接分隔线。 */
     height: var(--top-bar-height);
     padding: 0 40px;
     display: flex;
@@ -550,17 +421,11 @@ body.dark-theme .boot-login__button {
     left: 0;
     right: 0;
     bottom: 0;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    background: rgba(255, 255, 255, 0.68);
-    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    /* 永久暗色：顶栏为纯色底 + 1px 拼接分隔线，不再使用半透明白色模糊。 */
+    background: var(--md-sys-color-background);
+    border-bottom: 1px solid var(--glass-border);
     pointer-events: none;
     z-index: 0;
-}
-
-body.dark-theme .top-bar::before {
-    background: rgba(20, 18, 24, 0.88);
 }
 
 .top-bar > * {
@@ -579,16 +444,16 @@ body.dark-theme .top-bar::before {
 /* ===== 仪表盘卡片与通用容器 ===== */
 /* 仪表盘卡片 (Bento 风格) */
 .dashboard-grid {
-    /* 12 栏网格为桌面端默认布局基础，状态页和任务页都在此之上做跨度分配。 */
+    /* 12 栏网格为桌面端默认布局基础；间距归零，卡片以 1px 边框相互拼接。 */
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 24px;
+    gap: 0;
 }
 
 .card {
     /* card 是管理端最常见的视觉容器：统一圆角、边框、阴影和悬浮反馈。 */
     background: var(--md-sys-color-surface);
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     padding: 24px;
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
@@ -714,19 +579,14 @@ body.dark-theme .top-bar::before {
     padding: 20px 24px;
     flex-shrink: 0;
     border-bottom: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(154, 160, 168, 0.1);
     backdrop-filter: blur(8px);
     z-index: 10;
 }
 
-body.dark-theme .config-header {
-    background: rgba(20, 18, 24, 0.8); /* 增加不透明度，减弱透底亮度 */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px 0 rgba(103, 80, 164, 0.12);
+    box-shadow: 0 12px 30px 0 rgba(154, 160, 168, 0.12);
 }
 
 /* Bento 跨列：供各页面按 12 栏系统快速声明卡片宽度。 */
@@ -737,7 +597,7 @@ body.dark-theme .config-header {
 /* 状态徽章 */
 .badge {
     padding: 4px 12px;
-    border-radius: 99px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
 }
@@ -749,7 +609,7 @@ body.dark-theme .config-header {
 /* 按钮 */
 .btn {
     padding: 10px 20px;
-    border-radius: 12px;
+    border-radius: 0;
     border: none;
     font-weight: 600;
     cursor: pointer;
@@ -816,27 +676,13 @@ body.dark-theme .config-header {
     opacity: 0.8;
 }
 
-/* 暗色模式下的按钮覆盖样式 */
-body.dark-theme .btn-action {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--md-sys-color-on-surface);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-body.dark-theme .btn-action:hover {
-    background: rgba(208, 188, 255, 0.15);
-    color: var(--md-sys-color-primary);
-    border-color: rgba(208, 188, 255, 0.3);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
 /* ===== 滚动行为与兼容辅助类 ===== */
 /* 滚动条 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
     background: var(--md-sys-color-secondary-container);
-    border-radius: 10px;
+    border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-secondary); }
 
@@ -879,7 +725,7 @@ body.dark-theme .btn-action:hover {
     color: var(--md-sys-color-primary);
     background: var(--md-sys-color-surface-variant);
     padding: 6px 14px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1px solid var(--md-sys-color-outline-variant);
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     display: flex;
@@ -905,7 +751,7 @@ body.dark-theme .btn-action:hover {
     align-items: center;
     gap: 8px;
     padding: 6px 16px;
-    border-radius: 12px;
+    border-radius: 0;
     border: 1px solid transparent;
 }
 
@@ -922,7 +768,7 @@ body.dark-theme .btn-action:hover {
 .connection-chip-dot {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: 0;
 }
 
 .connection-chip.is-connected .connection-chip-dot {
@@ -968,7 +814,7 @@ body.dark-theme .btn-action:hover {
     justify-content: center;
     gap: 8px;
     border: 1px solid rgba(0, 0, 0, 0.04);
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: none;
     line-height: 1.2;
 }
@@ -976,17 +822,7 @@ body.dark-theme .btn-action:hover {
 .sidebar-action-btn:hover {
     transform: none;
     box-shadow: none;
-    background: rgba(103, 80, 164, 0.08);
-    color: var(--md-sys-color-on-surface);
-}
-
-body.dark-theme .sidebar-action-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-body.dark-theme .sidebar-action-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(154, 160, 168, 0.08);
     color: var(--md-sys-color-on-surface);
 }
 
@@ -1001,7 +837,7 @@ body.dark-theme .sidebar-action-btn:hover {
     gap: 12px;
     padding: 12px;
     background: rgba(0, 0, 0, 0.03);
-    border-radius: 12px;
+    border-radius: 0;
     transition:
         background-color var(--interactive-transition-duration) var(--theme-transition-easing),
         border-color var(--interactive-transition-duration) var(--theme-transition-easing),
@@ -1009,11 +845,6 @@ body.dark-theme .sidebar-action-btn:hover {
         box-shadow var(--interactive-transition-duration) var(--theme-transition-easing);
     border: 1px solid rgba(0, 0, 0, 0.06);
     cursor: pointer;
-}
-
-body.dark-theme .sidebar-github-inner {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-github-inner:hover {
@@ -1069,7 +900,7 @@ body.dark-theme .sidebar-github-inner {
 .status-panel-icon {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1078,7 +909,7 @@ body.dark-theme .sidebar-github-inner {
 
 .status-panel-icon-blue { background: rgba(59, 130, 246, 0.1); }
 .status-panel-icon-purple { background: rgba(168, 85, 247, 0.12); }
-.status-panel-icon-pink { background: rgba(236, 72, 153, 0.1); }
+.status-panel-icon-pink { background: rgba(154, 160, 168, 0.1); }
 
 .status-metric-list {
     display: flex;
@@ -1143,7 +974,7 @@ body.dark-theme .sidebar-github-inner {
     width: max-content;
     max-width: min(92vw, 460px);
     padding: 10px 14px;
-    border-radius: 12px;
+    border-radius: 0;
     background: rgba(28, 27, 31, 0.92);
     color: #fff;
     font-size: 12px;
@@ -1178,16 +1009,6 @@ body.dark-theme .sidebar-github-inner {
     transform: translateX(-50%) translateY(0);
 }
 
-body.dark-theme .status-action-tooltip-bubble {
-    background: rgba(245, 244, 248, 0.96);
-    color: #1C1B1F;
-    border-color: rgba(28, 27, 31, 0.08);
-}
-
-body.dark-theme .status-action-tooltip-bubble::after {
-    border-color: rgba(245, 244, 248, 0.96) transparent transparent transparent;
-}
-
 
 .status-timers-section {
     /* 计时器区域采用“分区 + 卡片网格”的结构，便于区分群沉默与自动触发。 */
@@ -1195,20 +1016,13 @@ body.dark-theme .status-action-tooltip-bubble::after {
     flex-direction: column;
     gap: 18px;
     padding: 20px;
-    border-radius: calc(var(--radius-lg) + 2px);
+    border-radius: 0;
     border: 1px solid var(--glass-border);
     background:
-        linear-gradient(180deg, rgba(103, 80, 164, 0.05), rgba(103, 80, 164, 0) 34%),
-        rgba(255, 255, 255, 0.3);
+        linear-gradient(180deg, rgba(154, 160, 168, 0.05), rgba(154, 160, 168, 0) 34%),
+        rgba(154, 160, 168, 0.06);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-}
-
-body.dark-theme .status-timers-section {
-    background:
-        linear-gradient(180deg, rgba(208, 188, 255, 0.08), rgba(208, 188, 255, 0) 34%),
-        rgba(20, 18, 24, 0.36);
-    border-color: rgba(208, 188, 255, 0.12);
 }
 
 .status-timers-header-row {
@@ -1231,7 +1045,7 @@ body.dark-theme .status-timers-section {
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 0;
     border: 1px solid var(--glass-border);
     background: var(--md-sys-color-surface-variant);
     color: var(--md-sys-color-on-surface-variant);
@@ -1245,7 +1059,7 @@ body.dark-theme .status-timers-section {
 .status-timers-summary-pill-count {
     min-width: 18px;
     height: 18px;
-    border-radius: 999px;
+    border-radius: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1267,14 +1081,9 @@ body.dark-theme .status-timers-section {
     flex-direction: column;
     gap: 14px;
     padding: 16px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.34);
-    border: 1px solid rgba(103, 80, 164, 0.12);
-}
-
-body.dark-theme .status-timer-section-block {
-    background: rgba(255, 255, 255, 0.02);
-    border-color: rgba(208, 188, 255, 0.14);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.07);
+    border: 1px solid rgba(154, 160, 168, 0.12);
 }
 
 .status-timer-section-head {
@@ -1283,11 +1092,7 @@ body.dark-theme .status-timer-section-block {
     justify-content: space-between;
     gap: 16px;
     padding-bottom: 10px;
-    border-bottom: 1px dashed rgba(103, 80, 164, 0.14);
-}
-
-body.dark-theme .status-timer-section-head {
-    border-bottom-color: rgba(208, 188, 255, 0.16);
+    border-bottom: 1px dashed rgba(154, 160, 168, 0.14);
 }
 
 .status-timer-section-head-main {
@@ -1306,7 +1111,7 @@ body.dark-theme .status-timer-section-head {
 .status-timer-section-count {
     flex-shrink: 0;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: 0;
     background: var(--md-sys-color-surface-variant);
     border: 1px solid var(--glass-border);
     color: var(--md-sys-color-primary);
@@ -1320,9 +1125,9 @@ body.dark-theme .status-timer-section-head {
 
 .status-timer-section-empty {
     padding: 14px 16px;
-    border-radius: 14px;
-    background: rgba(103, 80, 164, 0.05);
-    border: 1px dashed rgba(103, 80, 164, 0.18);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.05);
+    border: 1px dashed rgba(154, 160, 168, 0.18);
     color: var(--md-sys-color-on-surface-variant);
     font-size: 13px;
 }
@@ -1368,7 +1173,7 @@ body.dark-theme .status-timer-section-head {
 .status-timer-card.accent-auto-friend {
     border-top-color: #EC4899;
     background:
-        linear-gradient(180deg, rgba(236, 72, 153, 0.07), transparent 30%),
+        linear-gradient(180deg, rgba(154, 160, 168, 0.07), transparent 30%),
         var(--md-sys-color-surface);
 }
 
@@ -1439,12 +1244,12 @@ body.dark-theme .status-timer-section-head {
     align-items: center;
     justify-content: center;
     padding: 4px 10px;
-    border-radius: 999px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
     border: 1px solid transparent;
-    background: rgba(103, 80, 164, 0.08);
+    background: rgba(154, 160, 168, 0.08);
     color: var(--md-sys-color-primary);
 }
 
@@ -1461,9 +1266,9 @@ body.dark-theme .status-timer-section-head {
 }
 
 .status-timer-kind-badge.accent-auto-friend {
-    background: rgba(236, 72, 153, 0.12);
+    background: rgba(154, 160, 168, 0.12);
     color: #DB2777;
-    border-color: rgba(236, 72, 153, 0.18);
+    border-color: rgba(154, 160, 168, 0.18);
 }
 
 .status-timer-meta-row {
@@ -1479,11 +1284,11 @@ body.dark-theme .status-timer-section-head {
     align-items: center;
     justify-content: center;
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
-    background: rgba(103, 80, 164, 0.08);
+    background: rgba(154, 160, 168, 0.08);
     color: var(--md-sys-color-primary);
 }
 
@@ -1498,7 +1303,7 @@ body.dark-theme .status-timer-section-head {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    border-radius: 999px;
+    border-radius: 0;
     background: rgba(240, 246, 255, 0.84);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -1514,17 +1319,10 @@ body.dark-theme .status-timer-section-head {
     animation: status-reset-hint-fade 4.2s ease-out forwards;
 }
 
-body.dark-theme .status-timer-reset-hint {
-    background: rgba(30, 58, 138, 0.95);
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    color: #93C5FD;
-}
-
 .status-timer-reset-dot {
     width: 7px;
     height: 7px;
-    border-radius: 999px;
+    border-radius: 0;
     background: #2563EB;
     box-shadow: 0 0 0 rgba(37, 99, 235, 0.35);
     animation: status-reset-dot-pulse 1.4s ease-out infinite;
@@ -1539,8 +1337,8 @@ body.dark-theme .status-timer-reset-hint {
 .status-timer-panel {
     background: var(--md-sys-color-surface-variant);
     padding: 16px;
-    border-radius: 16px;
-    border: 1px solid rgba(103, 80, 164, 0.08);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.08);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -1579,13 +1377,9 @@ body.dark-theme .status-timer-reset-hint {
 
 .status-timer-info-item {
     padding: 14px;
-    border-radius: 14px;
+    border-radius: 0;
     background: rgba(255,255,255,0.42);
     border: 1px solid var(--glass-border);
-}
-
-body.dark-theme .status-timer-info-item {
-    background: rgba(255,255,255,0.04);
 }
 
 .status-timer-info-label {
@@ -1637,7 +1431,7 @@ body.dark-theme .status-timer-info-item {
 .notifications-hero-card {
     padding: 18px 24px;
     background:
-        linear-gradient(135deg, rgba(103, 80, 164, 0.08), rgba(103, 80, 164, 0.025) 48%, rgba(255, 255, 255, 0.72) 100%),
+        linear-gradient(135deg, rgba(154, 160, 168, 0.08), rgba(154, 160, 168, 0.025) 48%, rgba(154, 160, 168, 0.05) 100%),
         var(--md-sys-color-surface);
     position: relative;
     overflow: hidden;
@@ -1649,8 +1443,8 @@ body.dark-theme .status-timer-info-item {
     inset: auto -40px -56px auto;
     width: 180px;
     height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(103, 80, 164, 0.14), transparent 68%);
+    border-radius: 0;
+    background: radial-gradient(circle, rgba(154, 160, 168, 0.14), transparent 68%);
     pointer-events: none;
 }
 
@@ -1700,9 +1494,9 @@ body.dark-theme .status-timer-info-item {
 .notifications-inline-meta-item.is-pill {
     min-height: 34px;
     padding: 0 12px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.58);
-    border: 1px solid rgba(103, 80, 164, 0.12);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.12);
+    border: 1px solid rgba(154, 160, 168, 0.12);
     box-shadow: none;
 }
 
@@ -1735,7 +1529,7 @@ body.dark-theme .status-timer-info-item {
 .notifications-actions-row .MuiButton-root {
     min-height: 52px;
     padding: 0 22px;
-    border-radius: 18px;
+    border-radius: 0;
     font-weight: 700;
     box-shadow: none;
     border-width: 1px;
@@ -1806,9 +1600,9 @@ body.dark-theme .status-timer-info-item {
     width: 100%;
     text-align: left;
     padding: 14px 16px;
-    border-radius: 16px;
-    border: 1px solid rgba(103, 80, 164, 0.12);
-    background: rgba(255, 255, 255, 0.56);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.12);
+    background: rgba(154, 160, 168, 0.1);
     color: var(--md-sys-color-on-surface);
     cursor: pointer;
     transition:
@@ -1820,15 +1614,15 @@ body.dark-theme .status-timer-info-item {
 
 .markdown-docs-file-item:hover {
     transform: translateY(-2px);
-    background: rgba(103, 80, 164, 0.08);
-    border-color: rgba(103, 80, 164, 0.18);
-    box-shadow: 0 8px 22px rgba(103, 80, 164, 0.08);
+    background: rgba(154, 160, 168, 0.08);
+    border-color: rgba(154, 160, 168, 0.18);
+    box-shadow: 0 8px 22px rgba(154, 160, 168, 0.08);
 }
 
 .markdown-docs-file-item.is-active {
     background: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
-    border-color: rgba(103, 80, 164, 0.22);
+    border-color: rgba(154, 160, 168, 0.22);
 }
 
 .markdown-docs-file-item-top {
@@ -1905,22 +1699,22 @@ body.dark-theme .status-timer-info-item {
     min-height: auto;
     padding: 18px 20px 16px;
     gap: 12px;
-    border-radius: 20px;
+    border-radius: 0;
     background:
-        linear-gradient(180deg, rgba(103, 80, 164, 0.06), rgba(103, 80, 164, 0.02) 34%, rgba(255, 255, 255, 0.78) 100%),
+        linear-gradient(180deg, rgba(154, 160, 168, 0.06), rgba(154, 160, 168, 0.02) 34%, rgba(154, 160, 168, 0.06) 100%),
         var(--md-sys-color-surface);
-    box-shadow: 0 8px 24px rgba(103, 80, 164, 0.08);
+    box-shadow: 0 8px 24px rgba(154, 160, 168, 0.08);
 }
 
 .notification-feed-card::after {
     width: 140px;
     height: 140px;
     inset: auto -34px -46px auto;
-    background: radial-gradient(circle, rgba(103, 80, 164, 0.12), transparent 70%);
+    background: radial-gradient(circle, rgba(154, 160, 168, 0.12), transparent 70%);
 }
 
 .notification-feed-card.is-read {
-    border-color: rgba(103, 80, 164, 0.10);
+    border-color: rgba(154, 160, 168, 0.10);
 }
 
 .notification-feed-card-top {
@@ -1982,7 +1776,7 @@ body.dark-theme .status-timer-info-item {
 .notification-feed-heading-group .MuiChip-root,
 .notification-feed-type-chip {
     height: 30px;
-    border-radius: 999px;
+    border-radius: 0;
     font-weight: 700;
     flex-shrink: 0;
     margin-left: 0;
@@ -1994,7 +1788,7 @@ body.dark-theme .status-timer-info-item {
     justify-content: center;
     min-height: 28px;
     padding: 0 12px;
-    border-radius: 999px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
     border: 1px solid transparent;
@@ -2068,8 +1862,8 @@ body.dark-theme .status-timer-info-item {
 .task-next-run-panel {
     background: var(--md-sys-color-surface-variant);
     padding: 16px;
-    border-radius: 16px;
-    border: 1px solid rgba(103, 80, 164, 0.08);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.08);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -2078,10 +1872,10 @@ body.dark-theme .status-timer-info-item {
 .notification-feed-content-panel {
     position: relative;
     padding: 16px 16px 56px;
-    background: linear-gradient(180deg, rgba(103, 80, 164, 0.08), rgba(103, 80, 164, 0.035));
-    border-color: rgba(103, 80, 164, 0.09);
-    border-radius: 16px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    background: linear-gradient(180deg, rgba(154, 160, 168, 0.08), rgba(154, 160, 168, 0.035));
+    border-color: rgba(154, 160, 168, 0.09);
+    border-radius: 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .notification-feed-content-text {
@@ -2134,7 +1928,7 @@ body.dark-theme .status-timer-info-item {
 .notification-md h1 {
     font-size: 1.32rem;
     padding-bottom: 0.46rem;
-    border-bottom: 1px solid rgba(103, 80, 164, 0.16);
+    border-bottom: 1px solid rgba(154, 160, 168, 0.16);
 }
 
 .notification-md h2 {
@@ -2172,7 +1966,7 @@ body.dark-theme .status-timer-info-item {
     color: var(--md-sys-color-primary);
     text-decoration: none;
     font-weight: 700;
-    border-bottom: 1px solid rgba(103, 80, 164, 0.22);
+    border-bottom: 1px solid rgba(154, 160, 168, 0.22);
     transition:
         color var(--interactive-transition-duration) var(--theme-transition-easing),
         border-color var(--interactive-transition-duration) var(--theme-transition-easing),
@@ -2181,7 +1975,7 @@ body.dark-theme .status-timer-info-item {
 
 .notification-md a:hover {
     opacity: 0.88;
-    border-bottom-color: rgba(103, 80, 164, 0.42);
+    border-bottom-color: rgba(154, 160, 168, 0.42);
 }
 
 .notification-md ul,
@@ -2205,7 +1999,7 @@ body.dark-theme .status-timer-info-item {
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(103, 80, 164, 0.24),
+        rgba(154, 160, 168, 0.24),
         transparent
     );
 }
@@ -2215,10 +2009,10 @@ body.dark-theme .status-timer-info-item {
     margin-right: 0;
     padding: 0.9rem 1rem;
     border-left: 4px solid var(--md-sys-color-primary);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    background: linear-gradient(135deg, rgba(103, 80, 164, 0.12), rgba(103, 80, 164, 0.05));
+    border-radius: 0;
+    background: linear-gradient(135deg, rgba(154, 160, 168, 0.12), rgba(154, 160, 168, 0.05));
     color: var(--md-sys-color-on-surface);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .notification-md blockquote p {
@@ -2229,8 +2023,8 @@ body.dark-theme .status-timer-info-item {
     position: relative;
     padding: 1rem 1.1rem 1rem 1.15rem;
     border-left-width: 5px;
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    background: linear-gradient(135deg, rgba(103, 80, 164, 0.08), rgba(103, 80, 164, 0.03));
+    border-radius: 0;
+    background: linear-gradient(135deg, rgba(154, 160, 168, 0.08), rgba(154, 160, 168, 0.03));
 }
 
 .notification-md .notification-md-callout-header {
@@ -2309,9 +2103,9 @@ body.dark-theme .status-timer-info-item {
     display: inline-block;
     padding: 0.14rem 0.48rem;
     margin: 0 0.1rem;
-    border-radius: 999px;
-    border: 1px solid rgba(103, 80, 164, 0.16);
-    background: rgba(103, 80, 164, 0.10);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.16);
+    background: rgba(154, 160, 168, 0.10);
     color: var(--md-sys-color-primary);
     font-family: "Consolas", "SFMono-Regular", monospace;
     font-size: 0.9em;
@@ -2323,14 +2117,14 @@ body.dark-theme .status-timer-info-item {
 .notification-md-mermaid-block {
     margin: 0 0 0.95rem;
     overflow: hidden;
-    border-radius: 18px;
-    border: 1px solid rgba(103, 80, 164, 0.18);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.18);
     background:
-        linear-gradient(180deg, rgba(103, 80, 164, 0.18), rgba(103, 80, 164, 0.05) 18%, rgba(255, 255, 255, 0.94) 100%),
-        rgba(255, 255, 255, 0.92);
+        linear-gradient(180deg, rgba(154, 160, 168, 0.18), rgba(154, 160, 168, 0.05) 18%, rgba(154, 160, 168, 0.07) 100%),
+        rgba(38, 40, 43, 0.92);
     box-shadow:
-        0 10px 28px rgba(103, 80, 164, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        0 10px 28px rgba(154, 160, 168, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .notification-md-code-header {
@@ -2339,8 +2133,8 @@ body.dark-theme .status-timer-info-item {
     justify-content: space-between;
     min-height: 42px;
     padding: 0 14px;
-    border-bottom: 1px solid rgba(103, 80, 164, 0.10);
-    background: linear-gradient(180deg, rgba(103, 80, 164, 0.12), rgba(103, 80, 164, 0.06));
+    border-bottom: 1px solid rgba(154, 160, 168, 0.10);
+    background: linear-gradient(180deg, rgba(154, 160, 168, 0.12), rgba(154, 160, 168, 0.06));
 }
 
 .notification-md-code-lang {
@@ -2349,9 +2143,9 @@ body.dark-theme .status-timer-info-item {
     justify-content: center;
     min-height: 24px;
     padding: 0 10px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.58);
-    border: 1px solid rgba(103, 80, 164, 0.14);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.12);
+    border: 1px solid rgba(154, 160, 168, 0.14);
     color: var(--md-sys-color-primary);
     font-size: 11px;
     font-weight: 800;
@@ -2364,13 +2158,13 @@ body.dark-theme .status-timer-info-item {
     margin: 0;
     padding: 1rem 1.05rem 1.05rem;
     border: none;
-    border-radius: 0 0 18px 18px;
+    border-radius: 0;
     background:
-        radial-gradient(circle at top right, rgba(103, 80, 164, 0.08), transparent 34%),
+        radial-gradient(circle at top right, rgba(154, 160, 168, 0.08), transparent 34%),
         linear-gradient(180deg, rgba(248, 245, 255, 0.96), rgba(241, 236, 251, 0.96));
     box-shadow: none;
     scrollbar-width: thin;
-    scrollbar-color: rgba(103, 80, 164, 0.28) transparent;
+    scrollbar-color: rgba(154, 160, 168, 0.28) transparent;
 }
 
 .notification-md pre code {
@@ -2427,18 +2221,18 @@ body.dark-theme .status-timer-info-item {
 
 .notification-md .notification-md-table-wrap {
     overflow-x: auto;
-    border-radius: 16px;
-    border: 1px solid rgba(103, 80, 164, 0.12);
-    background: rgba(255, 255, 255, 0.34);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.12);
+    background: rgba(154, 160, 168, 0.07);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .notification-md .notification-md-details {
     overflow: hidden;
-    border-radius: 16px;
-    border: 1px solid rgba(103, 80, 164, 0.16);
-    background: linear-gradient(180deg, rgba(103, 80, 164, 0.08), rgba(103, 80, 164, 0.03));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border-radius: 0;
+    border: 1px solid rgba(154, 160, 168, 0.16);
+    background: linear-gradient(180deg, rgba(154, 160, 168, 0.08), rgba(154, 160, 168, 0.03));
+    box-shadow: inset 0 1px 0 rgba(154, 160, 168, 0.06);
 }
 
 .notification-md .notification-md-summary {
@@ -2491,7 +2285,7 @@ body.dark-theme .status-timer-info-item {
     overflow: hidden;
     padding: 1rem;
     background:
-        radial-gradient(circle at top right, rgba(103, 80, 164, 0.08), transparent 34%),
+        radial-gradient(circle at top right, rgba(154, 160, 168, 0.08), transparent 34%),
         linear-gradient(180deg, rgba(248, 245, 255, 0.96), rgba(241, 236, 251, 0.96));
     text-align: center;
 }
@@ -2508,9 +2302,9 @@ body.dark-theme .status-timer-info-item {
     min-width: 2rem;
     height: 2rem;
     padding: 0 0.65rem;
-    border: 1px solid rgba(103, 80, 164, 0.16);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(154, 160, 168, 0.16);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.14);
     color: var(--md-sys-color-primary);
     font-size: 0.9rem;
     font-weight: 800;
@@ -2524,8 +2318,8 @@ body.dark-theme .status-timer-info-item {
 }
 
 .notification-md-mermaid-tool-btn:hover {
-    background: rgba(103, 80, 164, 0.12);
-    border-color: rgba(103, 80, 164, 0.24);
+    background: rgba(154, 160, 168, 0.12);
+    border-color: rgba(154, 160, 168, 0.24);
     transform: translateY(-1px);
 }
 
@@ -2534,7 +2328,7 @@ body.dark-theme .status-timer-info-item {
     overflow: hidden;
     width: 100%;
     min-height: 240px;
-    border-radius: 14px;
+    border-radius: 0;
     cursor: default;
     touch-action: none;
 }
@@ -2586,11 +2380,11 @@ body.dark-theme .status-timer-info-item {
     padding: 0.72rem 0.85rem;
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid rgba(103, 80, 164, 0.10);
+    border-bottom: 1px solid rgba(154, 160, 168, 0.10);
 }
 
 .notification-md th {
-    background: rgba(103, 80, 164, 0.10);
+    background: rgba(154, 160, 168, 0.10);
     color: var(--md-sys-color-primary);
     font-weight: 800;
     white-space: nowrap;
@@ -2615,16 +2409,16 @@ body.dark-theme .status-timer-info-item {
 .notification-feed-actions .MuiButton-root {
     min-height: 40px;
     padding: 0 16px;
-    border-radius: 18px;
+    border-radius: 0;
     border-width: 1px;
     font-weight: 700;
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(154, 160, 168, 0.12);
     box-shadow: none;
 }
 
 .notification-feed-actions .MuiButton-root.Mui-disabled {
-    background: rgba(255, 255, 255, 0.34);
-    border-color: rgba(103, 80, 164, 0.10);
+    background: rgba(154, 160, 168, 0.07);
+    border-color: rgba(154, 160, 168, 0.10);
 }
 
 .notification-feed-actions-inside {
@@ -2662,14 +2456,14 @@ body.dark-theme .status-timer-info-item {
     align-items: center;
     justify-content: center;
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
 }
 
 .task-status-pill.is-future {
-    background: rgba(103, 80, 164, 0.14);
+    background: rgba(154, 160, 168, 0.14);
     color: var(--md-sys-color-primary);
 }
 
@@ -2693,15 +2487,15 @@ body.dark-theme .status-timer-info-item {
     /* 任务与计时器共用同一套进度条视觉语言，降低界面认知成本。 */
     width: 100%;
     height: 8px;
-    border-radius: 999px;
-    background: rgba(103, 80, 164, 0.12);
+    border-radius: 0;
+    background: rgba(154, 160, 168, 0.12);
     overflow: hidden;
 }
 
 .task-progress-bar {
     height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #6750A4, #8B5CF6);
+    border-radius: 0;
+    background: linear-gradient(90deg, #9aa0a8, #8B5CF6);
     transition: width var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
@@ -2716,310 +2510,6 @@ body.dark-theme .status-timer-info-item {
 .task-progress-bar.is-expired,
 .task-progress-bar.is-unknown {
     background: linear-gradient(90deg, #EF4444, #F87171);
-}
-
-
-body.dark-theme .sidebar-notification-badge {
-    border-color: rgba(28, 27, 31, 0.42);
-    box-shadow: 0 10px 22px rgba(255, 107, 107, 0.18);
-}
-
-body.dark-theme .sidebar-github-author {
-    color: var(--md-sys-color-on-surface);
-}
-
-body.dark-theme .sidebar-github-meta {
-    color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.9;
-}
-
-body.dark-theme .notifications-hero-card {
-    background:
-        linear-gradient(135deg, rgba(208, 188, 255, 0.10), rgba(79, 55, 139, 0.10) 50%, rgba(28, 27, 31, 0.78) 100%),
-        var(--md-sys-color-surface);
-}
-
-
-body.dark-theme .notification-feed-card {
-    background:
-        linear-gradient(180deg, rgba(208, 188, 255, 0.09), rgba(208, 188, 255, 0.025) 34%, rgba(28, 27, 31, 0.88) 100%),
-        var(--md-sys-color-surface);
-    border-color: rgba(208, 188, 255, 0.10);
-}
-
-body.dark-theme .markdown-docs-file-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(208, 188, 255, 0.12);
-}
-
-body.dark-theme .markdown-docs-file-item:hover {
-    background: rgba(208, 188, 255, 0.12);
-    border-color: rgba(208, 188, 255, 0.20);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
-}
-
-body.dark-theme .markdown-docs-file-item.is-active {
-    background: rgba(208, 188, 255, 0.18);
-    color: var(--md-sys-color-on-surface);
-    border-color: rgba(208, 188, 255, 0.24);
-}
-
-body.dark-theme .notifications-actions-row .MuiButton-root {
-    box-shadow: none;
-}
-
-body.dark-theme .notifications-inline-meta-item.is-pill {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(208, 188, 255, 0.12);
-    box-shadow: none;
-}
-
-body.dark-theme .notification-feed-status-pill.is-read {
-    color: #C7CFD9;
-    background: rgba(199, 207, 217, 0.12);
-    border-color: rgba(199, 207, 217, 0.18);
-}
-
-body.dark-theme .notification-feed-status-pill.is-unread {
-    color: #FBC02D;
-    background: rgba(251, 192, 45, 0.14);
-    border-color: rgba(251, 192, 45, 0.22);
-}
-
-body.dark-theme .notification-feed-content-panel {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
-    border-color: rgba(208, 188, 255, 0.10);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-body.dark-theme .notification-md h1 {
-    border-bottom-color: rgba(208, 188, 255, 0.18);
-}
-
-body.dark-theme .notification-md h3,
-body.dark-theme .notification-md a,
-body.dark-theme .notification-md :not(pre) > code {
-    color: var(--md-sys-color-primary);
-}
-
-body.dark-theme .notification-md a {
-    border-bottom-color: rgba(208, 188, 255, 0.26);
-}
-
-body.dark-theme .notification-md a:hover {
-    border-bottom-color: rgba(208, 188, 255, 0.42);
-}
-
-body.dark-theme .notification-md hr {
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(208, 188, 255, 0.26),
-        transparent
-    );
-}
-
-body.dark-theme .notification-md blockquote {
-    background: linear-gradient(135deg, rgba(208, 188, 255, 0.14), rgba(79, 55, 139, 0.18));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-body.dark-theme .notification-md .notification-md-callout {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-note {
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.16), rgba(30, 64, 175, 0.18));
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-note .notification-md-callout-header {
-    color: #93C5FD;
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-tip {
-    background: linear-gradient(135deg, rgba(74, 222, 128, 0.16), rgba(21, 128, 61, 0.18));
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-tip .notification-md-callout-header {
-    color: #86EFAC;
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-important {
-    background: linear-gradient(135deg, rgba(196, 181, 253, 0.18), rgba(91, 33, 182, 0.20));
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-important .notification-md-callout-header {
-    color: #D8B4FE;
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-warning {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(180, 83, 9, 0.18));
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-warning .notification-md-callout-header {
-    color: #FCD34D;
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-caution {
-    background: linear-gradient(135deg, rgba(248, 113, 113, 0.18), rgba(153, 27, 27, 0.18));
-}
-
-body.dark-theme .notification-md .notification-md-callout.is-caution .notification-md-callout-header {
-    color: #FCA5A5;
-}
-
-body.dark-theme .notification-md :not(pre) > code {
-    background: rgba(208, 188, 255, 0.12);
-    border-color: rgba(208, 188, 255, 0.18);
-}
-
-body.dark-theme .notification-md-code-block,
-body.dark-theme .notification-md-mermaid-block {
-    border-color: rgba(208, 188, 255, 0.18);
-    background:
-        linear-gradient(180deg, rgba(208, 188, 255, 0.12), rgba(79, 55, 139, 0.08) 16%, rgba(23, 20, 29, 0.96) 100%),
-        rgba(23, 20, 29, 0.96);
-    box-shadow:
-        0 12px 28px rgba(0, 0, 0, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-body.dark-theme .notification-md-code-header {
-    border-bottom-color: rgba(208, 188, 255, 0.12);
-    background: linear-gradient(180deg, rgba(208, 188, 255, 0.14), rgba(79, 55, 139, 0.20));
-}
-
-body.dark-theme .notification-md-code-lang {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(208, 188, 255, 0.18);
-}
-
-body.dark-theme .notification-md pre {
-    background:
-        radial-gradient(circle at top right, rgba(208, 188, 255, 0.08), transparent 34%),
-        linear-gradient(180deg, rgba(30, 27, 38, 0.98), rgba(20, 18, 24, 0.98));
-}
-
-body.dark-theme .notification-md pre code {
-    color: #ECE7F6;
-}
-
-body.dark-theme .notification-md pre code .token-key,
-body.dark-theme .notification-md pre code .token-property {
-    color: var(--md-code-token-key);
-}
-
-body.dark-theme .notification-md pre code .token-string {
-    color: var(--md-code-token-string);
-}
-
-body.dark-theme .notification-md pre code .token-number {
-    color: var(--md-code-token-number);
-}
-
-body.dark-theme .notification-md pre code .token-boolean {
-    color: var(--md-code-token-boolean);
-}
-
-body.dark-theme .notification-md pre code .token-keyword {
-    color: var(--md-code-token-keyword);
-}
-
-body.dark-theme .notification-md pre code .token-function {
-    color: var(--md-code-token-function);
-}
-
-body.dark-theme .notification-md pre code .token-command {
-    color: var(--md-code-token-command);
-}
-
-body.dark-theme .notification-md pre code .token-flag {
-    color: var(--md-code-token-flag);
-}
-
-body.dark-theme .notification-md pre code .token-punctuation {
-    color: var(--md-code-token-punctuation);
-}
-
-body.dark-theme .notification-md .notification-md-table-wrap {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(208, 188, 255, 0.14);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-body.dark-theme .notification-md .notification-md-details {
-    background: linear-gradient(180deg, rgba(208, 188, 255, 0.12), rgba(79, 55, 139, 0.10));
-    border-color: rgba(208, 188, 255, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-body.dark-theme .notification-md .notification-md-summary {
-    color: var(--md-sys-color-on-surface);
-}
-
-body.dark-theme .notification-md-mermaid {
-    background:
-        radial-gradient(circle at top right, rgba(208, 188, 255, 0.08), transparent 34%),
-        linear-gradient(180deg, rgba(30, 27, 38, 0.98), rgba(20, 18, 24, 0.98));
-}
-
-body.dark-theme .notification-md-mermaid-tool-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(208, 188, 255, 0.18);
-    color: var(--md-sys-color-primary);
-}
-
-body.dark-theme .notification-md-mermaid-tool-btn:hover {
-    background: rgba(208, 188, 255, 0.14);
-    border-color: rgba(208, 188, 255, 0.24);
-}
-
-body.dark-theme .notification-md-mermaid.is-error {
-    color: #F2B8B5;
-}
-
-body.dark-theme .notification-md th,
-body.dark-theme .notification-md td {
-    border-bottom-color: rgba(208, 188, 255, 0.10);
-}
-
-body.dark-theme .notification-md th {
-    background: rgba(208, 188, 255, 0.10);
-}
-
-body.dark-theme .notification-feed-actions .MuiButton-root {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(208, 188, 255, 0.18);
-    box-shadow: none;
-}
-
-body.dark-theme .notification-feed-actions .MuiButton-root.Mui-disabled {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(208, 188, 255, 0.10);
-}
-
-body.dark-theme .status-metric-label,
-body.dark-theme .status-timer-section-desc,
-body.dark-theme .status-timer-kicker,
-body.dark-theme .status-timer-session-sub,
-body.dark-theme .task-card-kicker,
-body.dark-theme .task-card-session-sub,
-body.dark-theme .task-next-run-label,
-body.dark-theme .status-timer-label,
-body.dark-theme .status-timer-info-label,
-body.dark-theme .tasks-header-subtitle,
-body.dark-theme .task-countdown-text,
-body.dark-theme .notifications-inline-meta-label,
-body.dark-theme .notification-feed-time {
-    color: var(--md-sys-color-on-surface-variant);
-    opacity: 0.95;
-}
-
-body.dark-theme .status-timer-section-count,
-body.dark-theme .status-timers-summary-pill,
-body.dark-theme .header-clock-chip,
-body.dark-theme .connection-chip {
-    color: var(--md-sys-color-on-surface);
 }
 
 /* ========== 响应式设计 ========== */
@@ -3039,7 +2529,7 @@ body.dark-theme .connection-chip {
     }
 
     .dashboard-grid {
-        gap: 16px;
+        gap: 0;
         grid-template-columns: repeat(6, 1fr);
     }
     
@@ -3139,7 +2629,7 @@ body.dark-theme .connection-chip {
 
     .dashboard-grid {
         grid-template-columns: 1fr !important;
-        gap: 12px;
+        gap: 0;
     }
 
     .span-4, .span-8, .span-12 {
@@ -3148,7 +2638,7 @@ body.dark-theme .connection-chip {
 
     .card {
         padding: 16px;
-        border-radius: var(--radius-md);
+        border-radius: 0;
     }
 
     .card:hover {
@@ -3254,7 +2744,7 @@ body.dark-theme .connection-chip {
 
     .notification-md pre {
         padding: 0.85rem 0.9rem 0.95rem;
-        border-radius: 0 0 14px 14px;
+        border-radius: 0;
     }
 
     .notification-md .notification-md-table-wrap {
@@ -3436,7 +2926,7 @@ body.dark-theme .connection-chip {
     );
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s ease-in-out infinite;
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     will-change: background-position;
 }
 
@@ -3483,17 +2973,6 @@ body.dark-theme .connection-chip {
         opacity: 0;
         transform: translateY(-4px) scale(0.985);
     }
-}
-
-body.dark-theme .skeleton,
-html.theme-dark .skeleton {
-    background: linear-gradient(
-        90deg,
-        var(--md-sys-color-surface-variant) 0%,
-        rgba(202, 196, 208, 0.15) 50%,
-        var(--md-sys-color-surface-variant) 100%
-    );
-    background-size: 200% 100%;
 }
 
 /* 尊重系统“减少动态效果”偏好，关闭高频动画，提升无障碍体验。 */

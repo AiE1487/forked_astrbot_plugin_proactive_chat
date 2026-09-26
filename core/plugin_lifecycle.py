@@ -9,9 +9,7 @@ import zoneinfo
 from typing import Any
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-import astrbot.api.star as star
-from astrbot.api import logger
+from astrbot.api import logger, star
 
 
 class LifecycleMixin:
@@ -34,7 +32,7 @@ class LifecycleMixin:
     auto_trigger_timers: dict[str, asyncio.TimerHandle]
     data_dir: Any
     session_data_file: Any
-    web_admin_server: Any
+    admin_api: Any
     notification_center: Any
     telemetry: Any
     _heartbeat_task: asyncio.Task[None] | None
@@ -141,22 +139,8 @@ class LifecycleMixin:
                     )
                 )
 
-        # 启动 Web 管理端
-        try:
-            if self.web_admin_server:
-                await self.web_admin_server.start()
-        except Exception as e:
-            logger.error(f"[主动消息] Web 管理端启动失败喵: {e}")
-            if self.telemetry and self.telemetry.enabled:
-                # Web 管理端属于附加能力，错误会上报但不会阻断插件主体运行。
-                self._track_task(
-                    asyncio.create_task(
-                        self.telemetry.track_error(
-                            e,
-                            module="core.plugin_lifecycle.initialize.web_admin_server",
-                        )
-                    )
-                )
+        # 说明：管理页 API 已在插件实例创建阶段注册到 Dashboard 转发层，
+        # 无需独立启动流程，也不再存在独立 HTTP 服务的生命周期。
 
     def _are_platforms_available(self) -> bool:
         """判断是否已有可用的 IM 平台适配器实例。
@@ -372,13 +356,6 @@ class LifecycleMixin:
                     logger.info("[主动消息] 会话数据已保存喵。")
                 except Exception as e:
                     logger.error(f"[主动消息] 保存数据时出错喵: {e}")
-
-            # 停止 Web 管理端
-            if self.web_admin_server:
-                try:
-                    await self.web_admin_server.stop()
-                except Exception as e:
-                    logger.warning(f"[主动消息] 停止 Web 管理端时出错喵: {e}")
 
             # 停止通知系统
             if self.notification_center:

@@ -114,7 +114,8 @@ function MarkdownDocsView() {
             mermaid.initialize({
                 startOnLoad: false,
                 securityLevel: 'strict',
-                theme: state.theme === 'dark' ? 'dark' : 'default',
+                // 管理台固定暗色主题，mermaid 图表随之固定为 dark。
+                theme: 'dark',
             });
             window.__PROACTIVE_MERMAID_INITIALIZED = true;
         }
@@ -352,7 +353,7 @@ function MarkdownDocsView() {
                 }
             });
         };
-    }, [currentDocumentPath, renderedHtml, state.theme]);
+    }, [currentDocumentPath, renderedHtml]);
 
     return (
         <Box className="notifications-view markdown-docs-view">

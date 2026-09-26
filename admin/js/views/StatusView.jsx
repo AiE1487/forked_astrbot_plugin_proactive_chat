@@ -391,7 +391,6 @@ function StatusView({ onRefresh }) {
                                 value={formatDuration(uptimeSeconds, { compact: true, maxUnits: 4 })}
                                 emphasize
                             />
-                            <StatusMetricRow label="已连接 WebSocket" value={`${Number(status.ws_connections ?? 0)} 个`} />
                         </div>
                     </div>
                 </div>

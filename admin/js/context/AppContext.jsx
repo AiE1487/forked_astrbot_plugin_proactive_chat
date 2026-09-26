@@ -35,18 +35,12 @@ const initialState = {
     selectedSession: '',
     // 当前选中会话的 base / override / effective 详情。
     sessionDetail: null,
-    // 主题优先读取本地存储，确保刷新页面后仍能保持用户偏好。
-    theme: localStorage.getItem('theme') || 'light',
+    // v1.3.0 起管理台固定为黑灰白暗色主题，不再维护可切换的 theme 状态。
 };
 
 function reducer(state, action) {
     // reducer 负责统一处理所有状态写入，避免各组件直接散写共享状态。
     switch (action.type) {
-        case 'TOGGLE_THEME':
-            // 主题切换时同步写入 localStorage，保证跨页面刷新可恢复。
-            const newTheme = state.theme === 'light' ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            return { ...state, theme: newTheme };
         case 'SET_VIEW':
             return { ...state, currentView: action.payload };
         case 'SET_LOADING':

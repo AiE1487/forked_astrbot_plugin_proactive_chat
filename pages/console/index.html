@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>主动消息管理台</title>
+
+    <!--
+        AstrBot 插件 Pages 引导页（沙箱 iframe）。
+        本页面是 pages/console/ 下唯一的静态文件：所有管理台前端源码
+        （admin/js/**、admin/css/style.css）都通过插件后端的 asset 接口
+        经 bridge 拉取后按序注入，因此无需关心静态资源的 asset_token 改写。
+    -->
+
+    <style>
+        /* 引导骨架屏：黑灰白直角，与管理台最终视觉一致。 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            height: 100%;
+            background: #111214;
+            color: #f2f3f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        .boot {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+        .boot__title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .boot__subtitle {
+            font-size: 13px;
+            color: #b8bcc2;
+            text-align: center;
+            max-width: 80vw;
+            word-break: break-all;
+        }
+        .boot__progress {
+            width: min(260px, 68vw);
+            height: 3px;
+            background: #26282b;
+            overflow: hidden;
+        }
+        .boot__progress-bar {
+            height: 100%;
+            width: 42%;
+            background: linear-gradient(90deg, #3a3d42 0%, #e8eaed 50%, #3a3d42 100%);
+            animation: boot-progress 1.45s ease-in-out infinite;
+        }
+        @keyframes boot-progress {
+            0% { transform: translateX(-110%); }
+            50% { transform: translateX(120%); }
+            100% { transform: translateX(260%); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="boot">
+        <div class="boot__title">主动消息管理台</div>
+        <div class="boot__subtitle" id="boot-text">正在初始化...</div>
+        <div class="boot__progress">
+            <div class="boot__progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- React 根节点：app.jsx 自挂载时使用，缺失会导致整页黑屏。 -->
+    <div id="root"></div>
+
+    <script>
+    (function() {
+        // 引导状态与工具函数集中挂在 window.ProactivePageBoot 上，避免散落全局。
+        var boot = {
+            failed: false,
+
+            text: function (msg, isError) {
+                var el = document.getElementById('boot-text');
+                if (el) {
+                    el.textContent = msg;
+                    el.style.color = isError ? '#ef9a9a' : '#b8bcc2';
+                }
+            },
+
+            fail: function (msg) {
+                this.failed = true;
+                console.error('[主动消息] ' + msg);
+                this.text(msg, true);
+            },
+        };
+        window.ProactivePageBoot = boot;
+
+        // 与独立页一致的 CDN 选择逻辑：国内走 npmmirror，其余走 unpkg。
+        var tz = '';
+        try {
+            if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+                tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+            }
+        } catch (e) {}
+        var lang = (navigator.language || '').toLowerCase();
+        var isCN = tz === 'Asia/Shanghai' || tz === 'Asia/Chongqing' || tz === 'Asia/Urumqi'
+                || lang === 'zh-cn';
+
+        var base = isCN ? 'https://registry.npmmirror.com' : 'https://unpkg.com';
+        var libs = isCN ? [
+            '/react/18.2.0/files/umd/react.production.min.js',
+            '/react-dom/18.2.0/files/umd/react-dom.production.min.js',
+            '/@babel/standalone/7.25.6/files/babel.min.js',
+            '/@mui/material/5.16.7/files/umd/material-ui.production.min.js',
+            '/@emotion/react/11.13.3/files/dist/emotion-react.umd.min.js',
+            '/@emotion/styled/11.13.0/files/dist/emotion-styled.umd.min.js',
+            '/marked/14.1.2/files/marked.min.js',
+            '/dompurify/3.1.6/files/dist/purify.min.js',
+            '/mermaid/11.4.1/files/dist/mermaid.min.js'
+        ] : [
+            '/react@18.2.0/umd/react.production.min.js',
+            '/react-dom@18.2.0/umd/react-dom.production.min.js',
+            '/@babel/standalone@7.25.6/babel.min.js',
+            '/@mui/material@5.16.7/umd/material-ui.production.min.js',
+            '/@emotion/react@11.13.3/dist/emotion-react.umd.min.js',
+            '/@emotion/styled@11.13.0/dist/emotion-styled.umd.min.js',
+            '/marked@14.1.2/marked.min.js',
+            '/dompurify@3.1.6/dist/purify.min.js',
+            '/mermaid@11.4.1/dist/mermaid.min.js'
+        ];
+
+        // 依赖库通过动态 script 顺序加载（s.async=false 保证执行顺序）。
+        var libsLoaded = 0;
+        var libWaiters = [];
+        function notifyLibs() {
+            if (libsLoaded < libs.length) return;
+            var waiters = libWaiters;
+            libWaiters = [];
+            waiters.forEach(function (w) { w(); });
+        }
+        function whenLibsReady() {
+            return new Promise(function (resolve) {
+                if (libsLoaded >= libs.length) { resolve(); return; }
+                libWaiters.push(resolve);
+            });
+        }
+
+        for (var i = 0; i < libs.length; i++) {
+            (function (src) {
+                var s = document.createElement('script');
+                s.src = base + src;
+                s.async = false;
+                s.onload = function () { libsLoaded++; notifyLibs(); };
+                s.onerror = function () {
+                    libsLoaded++;
+                    boot.fail('基础组件加载失败：' + src + '，请检查网络后刷新页面');
+                    notifyLibs();
+                };
+                document.head.appendChild(s);
+            })(libs[i]);
+        }
+
+        // 管理台前端源码清单：与独立页 admin/index.html 的加载顺序保持一致。
+        // 沙箱 iframe 中 localStorage 不可用，因此 safe-storage.js 必须最先注入；
+        // http-bridge.js / use-polling.js 分别替代 auth.js+http.js / useWebSocket.js。
+        var ASSETS = [
+            'css/style.css',
+            'js/utils/safe-storage.js',
+            'js/utils/http-bridge.js',
+            'js/utils/formatters.js',
+            'js/utils/markdown.js',
+            'js/context/AppContext.jsx',
+            'js/hooks/useApi.js',
+            'js/hooks/use-polling.js',
+            'js/components/common/ConfirmDialog.jsx',
+            'js/components/layout/Sidebar.jsx',
+            'js/components/layout/Header.jsx',
+            'js/views/StatusView.jsx',
+            'js/components/config/ConfigRenderer.jsx',
+            'js/views/ConfigView.jsx',
+            'js/views/TasksView.jsx',
+            'js/views/NotificationsView.jsx',
+            'js/views/MarkdownDocsView.jsx',
+            'js/app.jsx'
+        ];
+
+        // 等待宿主注入的 bridge SDK（注入时机由 Dashboard 决定，这里轮询等待）。
+        function waitForBridge(timeoutMs) {
+            return new Promise(function (resolve, reject) {
+                var started = Date.now();
+                (function probe() {
+                    if (window.AstrBotPluginPage && typeof window.AstrBotPluginPage.apiGet === 'function') {
+                        resolve(window.AstrBotPluginPage);
+                        return;
+                    }
+                    if (Date.now() - started > timeoutMs) {
+                        reject(new Error('等待插件页 bridge 超时，请确认 AstrBot 版本 >= 4.24.1'));
+                        return;
+                    }
+                    setTimeout(probe, 100);
+                })();
+            });
+        }
+
+        function fetchAsset(bridge, path) {
+            // 经 bridge 拉取 admin/ 目录内的前端源码；后端保证 {ok, kind, content} 结构。
+            return bridge.apiGet('asset/' + path).then(function (result) {
+                if (!result || typeof result !== 'object' || result.ok === false) {
+                    throw new Error((result && result.error) || '资源加载失败');
+                }
+                return result.content || '';
+            });
+        }
+
+        function injectAsset(path, content) {
+            if (/\.css$/i.test(path)) {
+                // 样式以 <style> 注入；字体等相对引用会被忽略，自动回退系统字体。
+                var style = document.createElement('style');
+                style.textContent = content;
+                document.head.appendChild(style);
+                return;
+            }
+
+            var code = content;
+            if (/\.jsx$/i.test(path)) {
+                if (typeof Babel === 'undefined') {
+                    throw new Error('Babel 未加载，无法编译: ' + path);
+                }
+                code = Babel.transform(content, { presets: ['react'] }).code;
+            }
+
+            var script = document.createElement('script');
+            script.textContent = code;
+            document.body.appendChild(script);
+        }
+
+        async function bootstrap() {
+            boot.text('正在连接 AstrBot 面板...');
+
+            var bridge = await waitForBridge(10000);
+            try { await bridge.ready(); } catch (e) { /* 上下文未就绪不阻断加载 */ }
+
+            await whenLibsReady();
+            if (boot.failed) return;
+
+            // 标记内嵌运行环境：http-bridge / use-polling / 主题逻辑据此生效。
+            window.__PROACTIVE_EMBEDDED__ = true;
+            // 鉴权由 Dashboard 承担，直接放行应用初始化。
+            window.__PROACTIVE_AUTH_PENDING = false;
+            document.title = '主动消息管理台';
+
+            for (var i = 0; i < ASSETS.length; i++) {
+                var path = ASSETS[i];
+                boot.text('正在加载管理台模块... (' + (i + 1) + '/' + ASSETS.length + ')');
+                var content = await fetchAsset(bridge, path);
+                injectAsset(path, content);
+            }
+
+            boot.text('加载完成');
+            var skeleton = document.querySelector('.boot');
+            if (skeleton && skeleton.parentNode) skeleton.parentNode.removeChild(skeleton);
+        }
+
+        bootstrap().catch(function (err) {
+            boot.fail((err && err.message) ? err.message : '管理台初始化失败，请刷新重试');
+        });
+    })();
+    </script>
+</body>
+
+</html>

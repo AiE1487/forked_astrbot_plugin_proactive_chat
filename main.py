@@ -9,12 +9,12 @@ import asyncio
 import re
 import time
 
-import astrbot.api.star as star
-from astrbot.api import logger
+from astrbot.api import logger, star
 from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.core.config.astrbot_config import AstrBotConfig
 
 # 导入各模块的 Mixins，用于组装插件能力
+from .core.admin_api import AdminApi
 from .core.chat_flow import ProactiveCoreMixin
 from .core.data_storage import StorageMixin
 from .core.llm_adapter import LlmMixin
@@ -27,7 +27,6 @@ from .core.session_override_manager import SessionOverrideManager
 from .core.session_parser import SessionMixin
 from .core.task_scheduler import SchedulerMixin
 from .core.telemetry_manager import TelemetryManager
-from .core.web_admin_server import WebAdminServer
 from .utils.version import get_plugin_version
 
 
@@ -66,15 +65,18 @@ class ProactiveChatPlugin(
         # 记录当前正在执行“立即触发”的会话，防止重复点击导致并发主动消息。
         self.manual_trigger_sessions: set[str] = set()
 
-        # 会话差异配置管理器、通知中心与 Web 管理端
+        # 会话差异配置管理器、通知中心与管理页 API
         self.session_override_manager = SessionOverrideManager(self.data_dir)
         self.notification_center = NotificationCenter(self)
         try:
-            self.web_admin_server = WebAdminServer(self)
+            # 管理页 API 注册到 AstrBot Dashboard 转发层（AstrBot 插件 Pages），
+            # 不再启动独立 HTTP 服务，鉴权由 Dashboard 身份体系承担。
+            self.admin_api = AdminApi(self)
+            self.admin_api.register(context)
         except Exception as e:
-            # Web 管理端属于增强能力，创建失败时仅禁用控制台，不影响插件主体继续加载。
-            self.web_admin_server = None
-            logger.error(f"[主动消息] Web 管理端组件创建失败喵，已自动禁用: {e}")
+            # 管理页属于增强能力，注册失败时仅禁用管理页，不影响插件主体继续加载。
+            self.admin_api = None
+            logger.error(f"[主动消息] 管理页 API 注册失败喵，已自动禁用: {e}")
         # 插件版本统一通过版本工具读取，供遥测、通知系统、状态接口等多个模块复用。
         self.version = get_plugin_version()
         # 遥测管理器在插件实例创建阶段即初始化，但真正发请求仍由生命周期阶段控制。

@@ -350,8 +350,8 @@ function TasksView({ onRefresh }) {
                                                 fontSize: 11,
                                                 fontWeight: 800,
                                                 whiteSpace: 'nowrap',
-                                                border: '1px solid rgba(103, 80, 164, 0.18)',
-                                                background: 'rgba(103, 80, 164, 0.08)',
+                                                border: '1px solid rgba(154, 160, 168, 0.18)',
+                                                background: 'rgba(154, 160, 168, 0.08)',
                                                 color: 'var(--md-sys-color-primary)',
                                                 lineHeight: 1.2,
                                             }}
@@ -422,8 +422,8 @@ function TasksView({ onRefresh }) {
                                             px: 1.5,
                                             py: 1.25,
                                             borderRadius: 2.5,
-                                            border: '1px solid rgba(103, 80, 164, 0.12)',
-                                            background: 'rgba(103, 80, 164, 0.04)',
+                                            border: '1px solid rgba(154, 160, 168, 0.12)',
+                                            background: 'rgba(154, 160, 168, 0.04)',
                                             minWidth: 0,
                                         }}
                                     >
@@ -439,8 +439,8 @@ function TasksView({ onRefresh }) {
                                             px: 1.5,
                                             py: 1.25,
                                             borderRadius: 2.5,
-                                            border: '1px solid rgba(103, 80, 164, 0.12)',
-                                            background: 'rgba(103, 80, 164, 0.04)',
+                                            border: '1px solid rgba(154, 160, 168, 0.12)',
+                                            background: 'rgba(154, 160, 168, 0.04)',
                                             minWidth: 0,
                                         }}
                                     >

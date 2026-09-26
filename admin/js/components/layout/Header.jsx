@@ -1,9 +1,9 @@
 ﻿(() => {
 /**
- * 文件职责：顶部栏组件，负责标题展示、时钟显示、连接状态指示与主题切换入口。
+ * 文件职责：顶部栏组件，负责标题展示与时钟显示。
  */
- 
- const { Box, Typography, IconButton } = MaterialUI;
+
+ const { Box, Typography } = MaterialUI;
  const { useState, useEffect } = React;
 
 function RealTimeClock({ timeZone }) {
@@ -36,14 +36,10 @@ function RealTimeClock({ timeZone }) {
 }
 
 function Header({ currentView }) {
-    const { state, dispatch } = useAppContext();
-    const { config, status } = state;
+    const { state } = useAppContext();
+    const { config } = state;
     // 若配置中未单独指定展示时区，则默认按插件主要使用场景的东八区展示。
     const displayTimezone = config?.displayTimezone || 'Asia/Shanghai';
-
-    const toggleTheme = () => {
-        dispatch({ type: 'TOGGLE_THEME' });
-    };
 
     // 视图 key 到标题文案的映射集中维护，避免 JSX 中散落条件判断。
     const viewTitles = {
@@ -53,10 +49,6 @@ function Header({ currentView }) {
         docs: '文档浏览',
         config: '配置管理',
     };
-
-    // Header 不直接感知底层 socket 实例，只消费后端状态中的连接计数结果。
-    const wsCount = Number(status?.ws_connections ?? 0);
-    const wsConnected = wsCount > 0;
 
     return (
         <>
@@ -71,31 +63,6 @@ function Header({ currentView }) {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                     <RealTimeClock timeZone={displayTimezone} />
-
-                    {/* 连接状态胶囊用于快速反馈实时通道是否可用。 */}
-                    <div className={`connection-chip ${wsConnected ? 'is-connected' : 'is-disconnected'}`}>
-                        <div className="connection-chip-dot"></div>
-                        <Typography variant="body2" className="connection-chip-text">
-                            {wsConnected ? '已连接' : '未连接'}
-                        </Typography>
-                    </div>
-
-                    <IconButton
-                        onClick={toggleTheme}
-                        sx={{
-                            width: 44,
-                            height: 44,
-                            background: 'var(--md-sys-color-surface)',
-                            border: '1px solid var(--glass-border)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                            '&:hover': { background: 'var(--md-sys-color-surface-variant)' }
-                        }}
-                    >
-                        <span style={{ fontSize: '18px' }}>
-                            {/* 图标语义与即将切换到的模式对应，帮助用户快速理解当前状态。 */}
-                            {state.theme === 'dark' ? '🌞' : '🌙'}
-                        </span>
-                    </IconButton>
                 </Box>
             </div>
         </>

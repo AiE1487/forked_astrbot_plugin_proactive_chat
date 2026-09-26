@@ -26,7 +26,7 @@ class ProactiveCoreMixin:
     last_message_times: dict[str, float]
     telemetry: Any
     manual_trigger_sessions: set[str]
-    web_admin_server: Any
+    admin_api: Any
 
     async def _clear_manual_trigger_state(self, session_id: str) -> None:
         """释放指定会话的手动触发占用状态，并向管理端广播任务刷新。"""
@@ -35,9 +35,9 @@ class ProactiveCoreMixin:
             return
 
         self.manual_trigger_sessions.discard(normalized_session_id)
-        if self.web_admin_server:
+        if self.admin_api:
             try:
-                await self.web_admin_server._broadcast_update("jobs")
+                await self.admin_api.broadcast("jobs")
             except Exception as e:
                 logger.debug(f"[主动消息] 广播手动触发状态更新失败喵: {e}")
 

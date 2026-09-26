@@ -648,7 +648,7 @@ function ConfigRenderer() {
     // 使用 useLayoutEffect 恢复滚动位置，尽量让用户在绘制完成前回到上次浏览位置。
     useLayoutEffect(() => {
         if (!loading && scrollContainerRef.current) {
-            const savedPos = localStorage.getItem(getScrollKey());
+            const savedPos = SafeStorage.getItem(getScrollKey());
             if (savedPos) {
                 // 尝试恢复
                 const pos = parseInt(savedPos, 10);
@@ -671,7 +671,7 @@ function ConfigRenderer() {
         if (!el || loading) return;
 
         const handleScroll = () => {
-            localStorage.setItem(getScrollKey(), el.scrollTop);
+            SafeStorage.setItem(getScrollKey(), el.scrollTop);
         };
 
         let timeout;
@@ -690,14 +690,14 @@ function ConfigRenderer() {
     // 自动保存草稿，但只有发生本地修改时才写入，避免把服务端新值反向覆盖成本地草稿。
     useEffect(() => {
         if (config && isDirtyRef.current) {
-            localStorage.setItem(getDraftKey(), JSON.stringify(config));
+            SafeStorage.setItem(getDraftKey(), JSON.stringify(config));
         }
     }, [config, mode, selectedSession]);
 
     // 记忆折叠 / 展开状态，让用户在大型 Schema 中保持稳定的浏览结构。
     useEffect(() => {
         if (schema) { // 确保 schema 加载后再保存，避免初始化时的空状态覆盖
-            localStorage.setItem(getExpandedKey(), JSON.stringify(expandedKeys));
+            SafeStorage.setItem(getExpandedKey(), JSON.stringify(expandedKeys));
         }
     }, [expandedKeys, schema, mode, selectedSession]);
 
@@ -784,7 +784,7 @@ function ConfigRenderer() {
             isDirtyRef.current = false;
 
             // 2. 处理展开状态记忆
-            const cachedExpandedStr = localStorage.getItem(getExpandedKey(currentMode, currentSession));
+            const cachedExpandedStr = SafeStorage.getItem(getExpandedKey(currentMode, currentSession));
             let finalExpandedKeys = [];
             if (cachedExpandedStr) {
                 try {
@@ -871,28 +871,31 @@ function ConfigRenderer() {
                     effective: cleanedConfig
                 });
                 isDirtyRef.current = false;
-                localStorage.removeItem(getDraftKey(currentMode, currentSession));
+                SafeStorage.removeItem(getDraftKey(currentMode, currentSession));
                 setConfig(response?.effective || cleanedConfig);
                 setSaveFeedback({ type: 'success', text: '会话差异配置已保存' });
                 await loadSessions();
                 // 会话模式保存后强制回读服务端 effective，确保会话隔离与覆写状态显示正确
                 await loadConfig(currentMode, currentSession);
             } else {
+                // 提交全部 5 个一级配置组，避免通知 / 遥测等组被静默丢弃。
                 const payload = {
                     friend_settings: cleanedConfig.friend_settings,
                     group_settings: cleanedConfig.group_settings,
                     web_admin: cleanedConfig.web_admin,
+                    notification_settings: cleanedConfig.notification_settings,
+                    telemetry_config: cleanedConfig.telemetry_config,
                 };
                 await api.updateConfig(payload);
                 isDirtyRef.current = false;
                 setConfig(cleanedConfig); // 全局模式可直接更新界面
-                localStorage.removeItem(getDraftKey(currentMode, currentSession)); // 已保存，清除草稿
+                SafeStorage.removeItem(getDraftKey(currentMode, currentSession)); // 已保存，清除草稿
                 setSaveFeedback({ type: 'success', text: '全局配置已保存' });
             }
         } catch (e) {
             console.error('保存配置失败', e);
             setSaveFeedback({ type: 'error', text: e?.message || '保存配置失败，请检查后端返回信息' });
-            window.alert(e?.message || '保存配置失败，请检查后端返回信息');
+            ProactiveDialog.alert(e?.message || '保存配置失败，请检查后端返回信息', '保存失败');
         } finally {
             setSaving(false);
         }
@@ -905,20 +908,25 @@ function ConfigRenderer() {
             return;
         }
 
-        const ok = confirm('确定要清空该会话的差异配置吗？\n\n清空后将完全继承全局默认配置。');
+        // 沙箱 iframe 中原生 confirm 被拦截，统一改用页面内确认框。
+        const ok = await ProactiveDialog.confirm({
+            title: '清空会话差异配置',
+            message: '确定要清空该会话的差异配置吗？\n\n清空后将完全继承全局默认配置。',
+            danger: true,
+        });
         if (!ok) return;
 
         setSaving(true);
         try {
             await api.resetSessionConfig(selectedSession);
-            localStorage.removeItem(getDraftKey(mode, selectedSession));
+            SafeStorage.removeItem(getDraftKey(mode, selectedSession));
             setSaveFeedback({ type: 'success', text: '会话差异配置已清空' });
             await loadSessions();
             await loadConfig(mode, selectedSession);
         } catch (e) {
             console.error('清空会话差异配置失败', e);
             setSaveFeedback({ type: 'error', text: e?.message || '清空会话差异配置失败' });
-            window.alert(e?.message || '清空会话差异配置失败');
+            ProactiveDialog.alert(e?.message || '清空会话差异配置失败', '操作失败');
         } finally {
             setSaving(false);
         }
@@ -1094,9 +1102,9 @@ function ConfigRenderer() {
                                     py: 1.75,
                                     borderRadius: 2.5,
                                     border: '1px solid',
-                                    borderColor: sessionEnabled ? 'rgba(103, 80, 164, 0.22)' : 'rgba(244, 67, 54, 0.18)',
+                                    borderColor: sessionEnabled ? 'rgba(154, 160, 168, 0.22)' : 'rgba(244, 67, 54, 0.18)',
                                     background: sessionEnabled
-                                        ? 'linear-gradient(135deg, rgba(103, 80, 164, 0.08) 0%, rgba(103, 80, 164, 0.03) 100%)'
+                                        ? 'linear-gradient(135deg, rgba(154, 160, 168, 0.08) 0%, rgba(154, 160, 168, 0.03) 100%)'
                                         : 'linear-gradient(135deg, rgba(244, 67, 54, 0.08) 0%, rgba(244, 67, 54, 0.03) 100%)'
                                 }}
                             >
@@ -1172,8 +1180,14 @@ function ConfigRenderer() {
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1.5 }}>
                     <Button
-                        onClick={() => {
-                            if (confirm('⚠️ 确定要恢复出厂设置吗？\n\n这将覆盖当前所有配置项为默认值（需要点击“保存配置”才能生效）。')) {
+                        onClick={async () => {
+                            // 沙箱 iframe 中原生 confirm 被拦截，统一改用页面内确认框。
+                            const ok = await ProactiveDialog.confirm({
+                                title: '恢复默认',
+                                message: '⚠️ 确定要恢复出厂设置吗？\n\n这将覆盖当前所有配置项为默认值（需要点击“保存配置”才能生效）。',
+                                danger: true,
+                            });
+                            if (ok) {
                                 const generateDefaults = (s) => {
                                     const c = {};
                                     Object.entries(s).forEach(([k, v]) => {
@@ -1202,7 +1216,7 @@ function ConfigRenderer() {
                                     isDirtyRef.current = true;
                                     setConfig(defaults);
                                 }
-                                localStorage.removeItem(getDraftKey());
+                                SafeStorage.removeItem(getDraftKey());
                             }
                         }}
                         disabled={saving}
@@ -1221,9 +1235,14 @@ function ConfigRenderer() {
                         恢复默认
                     </Button>
                     <Button
-                        onClick={() => {
-                            if (confirm('确定要撤销所有未保存的更改吗？\n\n这将重新加载服务器上已保存的配置。')) {
-                                localStorage.removeItem(getDraftKey());
+                        onClick={async () => {
+                            // 沙箱 iframe 中原生 confirm 被拦截，统一改用页面内确认框。
+                            const ok = await ProactiveDialog.confirm({
+                                title: '撤销更改',
+                                message: '确定要撤销所有未保存的更改吗？\n\n这将重新加载服务器上已保存的配置。',
+                            });
+                            if (ok) {
+                                SafeStorage.removeItem(getDraftKey());
                                 loadConfig();
                             }
                         }}

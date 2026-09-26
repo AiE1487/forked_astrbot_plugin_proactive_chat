@@ -5,7 +5,6 @@
 function App() {
     const { state, dispatch } = useAppContext();
     const api = useApi();
-    const themeInitializedRef = React.useRef(false);
     const mainContentRef = React.useRef(null);
     const isRestoringRef = React.useRef(false);
 
@@ -122,7 +121,7 @@ function App() {
         if (!el) return;
 
         const key = getScrollKey();
-        const savedPos = parseInt(localStorage.getItem(key) || '0', 10);
+        const savedPos = parseInt(SafeStorage.getItem(key) || '0', 10);
 
         if (savedPos > 0) {
             isRestoringRef.current = true;
@@ -165,7 +164,7 @@ function App() {
         const handleScroll = () => {
             if (isRestoringRef.current) {
                 const key = getScrollKey();
-                const savedPos = parseInt(localStorage.getItem(key) || '0', 10);
+                const savedPos = parseInt(SafeStorage.getItem(key) || '0', 10);
                 if (savedPos > 0 && Math.abs(el.scrollTop - savedPos) > 100) {
                     isRestoringRef.current = false;
                 }
@@ -174,7 +173,7 @@ function App() {
             window.clearTimeout(timeout);
             timeout = window.setTimeout(() => {
                 const key = getScrollKey();
-                localStorage.setItem(key, String(el.scrollTop));
+                SafeStorage.setItem(key, String(el.scrollTop));
             }, 120);
         };
 
@@ -210,59 +209,7 @@ function App() {
         }
     };
 
-    React.useEffect(() => {
-        // 将暗色模式类名直接挂载到 html / body，便于纯 CSS 全局变量一起切换。
-        const root = document.documentElement;
-        const body = document.body;
-
-        if (state.theme === 'dark') {
-            root.classList.add('theme-dark');
-            body.classList.add('dark-theme');
-        } else {
-            root.classList.remove('theme-dark');
-            body.classList.remove('dark-theme');
-        }
-
-        // 首次挂载不加过渡，避免首屏闪动；后续主题切换时才短暂打开统一过渡。
-        if (!themeInitializedRef.current) {
-            themeInitializedRef.current = true;
-            return;
-        }
-
-        root.classList.add('theme-transitioning');
-
-        const computedStyle = window.getComputedStyle(root);
-        const themeTransitionVar = computedStyle
-            .getPropertyValue('--theme-transition-duration')
-            .trim();
-        const interactiveTransitionVar = computedStyle
-            .getPropertyValue('--interactive-transition-duration')
-            .trim();
-
-        let themeTransitionDuration = Number.parseFloat(themeTransitionVar);
-        let interactiveTransitionDuration = Number.parseFloat(interactiveTransitionVar);
-
-        if (Number.isNaN(themeTransitionDuration)) {
-            themeTransitionDuration = 220;
-        }
-        if (Number.isNaN(interactiveTransitionDuration)) {
-            interactiveTransitionDuration = themeTransitionDuration;
-        }
-
-        const transitionDuration = Math.max(
-            themeTransitionDuration,
-            interactiveTransitionDuration
-        );
-
-        const timer = window.setTimeout(() => {
-            root.classList.remove('theme-transitioning');
-        }, transitionDuration);
-
-        return () => {
-            window.clearTimeout(timer);
-            root.classList.remove('theme-transitioning');
-        };
-    }, [state.theme]);
+    // v1.3.0 起管理台固定为黑灰白暗色主题：主题类名由入口 HTML 预置，无切换逻辑。
 
     return (
         <div className="app">
@@ -275,63 +222,91 @@ function App() {
                 <Header currentView={state.currentView} />
                 <div className="main-content" ref={mainContentRef}>
                     {/* 顶部错误条统一展示最近一次加载 / 操作失败的消息。 */}
-                    {state.error ? <div className="card" style={{marginBottom: 16, color: '#B3261E', background: 'rgba(179, 38, 30, 0.08)'}}>错误：{state.error}</div> : null}
+                    {state.error ? <div className="card" style={{marginBottom: 0, color: '#ef9a9a', background: 'rgba(239, 154, 154, 0.08)'}}>错误：{state.error}</div> : null}
                     {renderView()}
                 </div>
             </div>
+            {/* 全局确认 / 提示对话框宿主：沙箱 iframe 中原生 alert/confirm 不可用。 */}
+            <ProactiveDialogHost />
         </div>
     );
 }
 
 function ThemedAppShell() {
-    const { state } = useAppContext();
-
     const muiTheme = React.useMemo(() => {
-        const isDark = state.theme === 'dark';
-
+        // 固定黑灰白暗色主题：直角、无渐变、中性灰配色，强调色仅为灰阶深浅。
         return MaterialUI.createTheme({
-            palette: isDark
-                ? {
-                    mode: 'dark',
-                    primary: {
-                        main: '#D0BCFF',
-                    },
-                    secondary: {
-                        main: '#CCC2DC',
-                    },
-                    background: {
-                        default: '#141218',
-                        paper: '#1C1B1F',
-                    },
-                    text: {
-                        primary: '#E6E1E5',
-                        secondary: '#CAC4D0',
-                    },
-                    divider: 'rgba(208, 188, 255, 0.16)',
-                }
-                : {
-                    mode: 'light',
-                    primary: {
-                        main: '#6750A4',
-                    },
-                    secondary: {
-                        main: '#625B71',
-                    },
-                    background: {
-                        default: '#FEF7FF',
-                        paper: '#FFFFFF',
-                    },
-                    text: {
-                        primary: '#1C1B1F',
-                        secondary: '#49454F',
-                    },
-                    divider: 'rgba(103, 80, 164, 0.16)',
+            palette: {
+                mode: 'dark',
+                primary: {
+                    main: '#e8eaed',
+                    contrastText: '#111214',
                 },
+                secondary: {
+                    main: '#b8bcc2',
+                },
+                error: {
+                    main: '#e57373',
+                },
+                warning: {
+                    main: '#ffb74d',
+                },
+                success: {
+                    main: '#81c784',
+                },
+                info: {
+                    main: '#90a4ae',
+                },
+                background: {
+                    default: '#111214',
+                    paper: '#17181a',
+                },
+                text: {
+                    primary: '#f2f3f5',
+                    secondary: '#b8bcc2',
+                },
+                divider: '#2e3236',
+            },
+            shape: {
+                borderRadius: 0,
+            },
             typography: {
                 fontFamily: '"Roboto", "Noto Sans SC", "Helvetica", "Arial", sans-serif',
-            }
+            },
+            components: {
+                MuiPaper: {
+                    styleOverrides: { root: { borderRadius: 0, backgroundImage: 'none' } },
+                },
+                MuiCard: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+                MuiButton: {
+                    styleOverrides: { root: { borderRadius: 0, textTransform: 'none' } },
+                },
+                MuiOutlinedInput: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+                MuiChip: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+                MuiAccordion: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+                MuiDialog: {
+                    styleOverrides: { paper: { borderRadius: 0, backgroundImage: 'none' } },
+                },
+                MuiSnackbarContent: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+                MuiTooltip: {
+                    styleOverrides: { tooltip: { borderRadius: 0 } },
+                },
+                MuiLinearProgress: {
+                    styleOverrides: { root: { borderRadius: 0 } },
+                },
+            },
         });
-    }, [state.theme]);
+    }, []);
 
     return (
         <MaterialUI.ThemeProvider theme={muiTheme}>

@@ -13,7 +13,6 @@ from urllib.request import Request, urlopen
 
 import aiofiles
 import aiofiles.os as aio_os
-
 from astrbot.api import logger
 
 from ..utils.version import get_plugin_version
@@ -358,32 +357,19 @@ class NotificationCenter:
             logger.info("[主动消息] 通知系统未启用或配置不完整喵。")
             return
 
-        changed = await self.refresh()
-        if getattr(self.plugin, "web_admin_server", None):
-            if changed:
-                await self.plugin.web_admin_server._broadcast_update("notifications")
-            else:
-                await self.plugin.web_admin_server._broadcast_notification_meta_update(
-                    "notifications-meta"
-                )
+        await self.refresh()
+        if getattr(self.plugin, "admin_api", None):
+            await self.plugin.admin_api.broadcast("notifications")
 
         async def _poll_loop() -> None:
             while True:
                 try:
                     # 采用 sleep + refresh 的简单轮询模型即可满足一期通知同步需求。
                     await asyncio.sleep(self._get_poll_interval_seconds())
-                    changed = await self.refresh()
-                    if getattr(self.plugin, "web_admin_server", None):
-                        if changed:
-                            # 仅在通知内容变化时推送完整通知载荷，避免无意义的大包重传。
-                            await self.plugin.web_admin_server._broadcast_update(
-                                "notifications"
-                            )
-                        else:
-                            # 内容未变化时只同步元信息，确保“上次同步”时间标签自动刷新。
-                            await self.plugin.web_admin_server._broadcast_notification_meta_update(
-                                "notifications-meta"
-                            )
+                    await self.refresh()
+                    if getattr(self.plugin, "admin_api", None):
+                        # 独立 WebSocket 已移除，广播为占位空操作，保留调用位。
+                        await self.plugin.admin_api.broadcast("notifications")
                 except asyncio.CancelledError:
                     break
                 except Exception as e:

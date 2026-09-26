@@ -6,6 +6,28 @@
 <!-- markdownlint-disable MD041 -->
 # ChangeLog
 
+# 2026/09/26 v1.3.0
+
+本版本将插件管理台迁移至 AstrBot 内置插件页面（需要 AstrBot >= 4.24.1），并整体重制了视觉风格。
+
+## 🚀 What's Changed
+
+### 💥 Breaking Changes (破坏性变更)
+
+- 移除独立 WebUI 服务（uvicorn / FastAPI / 独立端口 / 访问密码）：管理台改为在 AstrBot WebUI 的插件详情页中打开（插件 Pages），鉴权由 Dashboard 承担。AstrBot 版本要求提升至 >= 4.24.1，`web_admin` 配置组随之移除
+
+### 🐛 Bug Fixes (问题修复)
+
+- 修复在 AstrBot 面板点击「保存并重启」后宿主程序崩溃的问题（崩溃源为独立服务的 uvicorn 停启链路，随独立服务一并移除）
+- 修复管理台保存配置时 `notification_settings` 与 `telemetry_config` 被静默丢弃的问题（保存白名单与前端提交范围现已覆盖全部 5 个配置组）
+
+### ✨ Features (新特性)
+
+- 管理台全新黑灰白直角主题：去掉圆角、卡片间距与玻璃拟态，组件无缝拼接，永久暗色
+- 管理台适配沙箱 iframe：原生 alert/confirm 全部替换为页面内对话框，localStorage 改为安全封装，实时数据由轮询承担
+
+---
+
 # 2026/08/30 v1.2.5
 
 Hi，好久不见。我想说的是我们还没有跑路 :)
